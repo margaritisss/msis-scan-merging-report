@@ -1,15 +1,15 @@
 # Fdb version 4
-["bibtex main"] 1793716059.73906 "main.aux" "main.bbl" "main" 1793716064.73271 0
+["bibtex main"] 1793731680.69592 "main.aux" "main.bbl" "main" 1793731685.94886 0
   "./apalike-nd.bst" 1793381542 24793 ed021ad8aa23c9b55e6eb5df6a258f11 ""
   "./references.bib" 1793484917 4567 e32fd56daf32e48549c8f037a6f3e567 ""
-  "main.aux" 1793716064.5251 23124 b6fc1092cd549408dffa034b10f1445f "pdflatex"
+  "main.aux" 1793731685.72793 25615 d808732a0d5eed57d2643d75507dbc5f "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1793716059.79209 "/home/marga/Desktop/project_report/report-template/main.tex" "main.pdf" "main" 1793716064.73292 0
+["pdflatex"] 1793731680.74964 "/home/marga/Desktop/project_report/report-template/main.tex" "main.pdf" "main" 1793731685.94906 0
   "/etc/texmf/web2c/texmf.cnf" 1765718204.82674 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/marga/Desktop/project_report/report-template/main.tex" 1793381554 2006 95c093ea39b3889d705b0f34f101b87a ""
+  "/home/marga/Desktop/project_report/report-template/main.tex" 1793728520.8233 2006 1f57c73c9140e1c31a8c8fa5545d12b3 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/helvetic/phvb8r.tfm" 1136768653 4484 b828043cbd581d289d955903c1339981 ""
@@ -304,6 +304,7 @@
   "figures/RESULT_zoom_without.png" 1793716040.33503 29381 8991b815e396bbcb99fe8df8a2361e47 ""
   "figures/Scooter.png" 1773893538 510978 3e0ad5d10b4e0805823eb563d4818987 ""
   "figures/Scooter_diver.png" 1773893538 1214205 66b1e2828446fbfc07253b836ffdfb56 ""
+  "figures/diagrams.png" 1793725681.58919 190083 91ed71f8434409caa5f1c6bb304f82ce ""
   "figures/fig_6.png" 1793700875.11807 393883 d7696f86191cb54d892fc741dab301bf ""
   "figures/fig_7.jpeg" 1793701267.57592 295688 8d36c541256ef2a506cd60cb7508c0b7 ""
   "figures/fig_8.png" 1793701376.53817 178478 31bc2f2f7ba4166c442386d351f05c81 ""
@@ -316,15 +317,15 @@
   "figures/points.png" 1793703160.92695 185412 46ca9960bc24d9cffedb408d6f9bb882 ""
   "figures/scanning_planes.jpeg" 1793642094.64061 711338 19cc7dbc30a7dc91df1e94e286e4e0e6 ""
   "figures/several_elevation_angles.png" 1793709960.7155 142841 4fb48d110fed359163875397310670b0 ""
-  "main.aux" 1793716064.5251 23124 b6fc1092cd549408dffa034b10f1445f "pdflatex"
-  "main.bbl" 1793716059.78402 3760 9837db21b73f015debee00840e8c2141 "bibtex main"
-  "main.out" 1793716064.5271 4412 e383e89774c133a1c72b284b69549e0c "pdflatex"
-  "main.tex" 1793381554 2006 95c093ea39b3889d705b0f34f101b87a ""
-  "main.toc" 1793716064.52759 2860 58a89a9fb3fc4ac059c6a8cc3336fb25 "pdflatex"
-  "sections/02-background.tex" 1793709235.95791 8048 ad0e79c7bce7b105f624a70df09792d4 ""
-  "sections/03-introduction.tex" 1793381553 345 96b5588b8c53241b428eec18604a1346 ""
-  "sections/04-definitions.tex" 1793710445.00047 13890 ef8743e30ff777acf94a11292c9b0f09 ""
-  "sections/05-msis-scan-merging.tex" 1793712574.60265 58640 93f04c208d3b61322fccacdcf681b8c9 ""
+  "main.aux" 1793731685.72793 25615 d808732a0d5eed57d2643d75507dbc5f "pdflatex"
+  "main.bbl" 1793731680.7429 2434 b0209ded6ce448ea1e8e09c0fa3c948a "bibtex main"
+  "main.out" 1793731685.72993 4412 d8d695fd6e552eb58abefceede9d108f "pdflatex"
+  "main.tex" 1793728520.8233 2006 1f57c73c9140e1c31a8c8fa5545d12b3 ""
+  "main.toc" 1793731685.73099 2860 b92f3a868769ab1b627a36b8c29ed5f3 "pdflatex"
+  "sections/02-introduction.tex" 1793731427.17838 4572 a081f5c230cdddc3b6b71294a3e3a9b3 ""
+  "sections/03-background.tex" 1793731675.18345 6576 c0940d21cc801230d726957c03d5a479 ""
+  "sections/04-definitions.tex" 1793730375.53044 13930 8d587de254ebed3280c3b4b28b870114 ""
+  "sections/05-msis-scan-merging.tex" 1793727000.77483 59915 b1cca9435d25514cbd21838781802c4c ""
   "sections/06-results.tex" 1793714331.10858 5362 8a04bfdd724f75c9f0343185c5619073 ""
   "sections/07-conclusions.tex" 1793381553 423 f426173355da3122bc28631f866f76be ""
   "sections/11-references.tex" 1793381542 252 717041475a16dd17deeea56509affd49 ""

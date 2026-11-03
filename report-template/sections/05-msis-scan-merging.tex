@@ -685,17 +685,31 @@ summarizes the computation of the distribution of one estimate.
 
 \begin{figure}[!htb]                     % uncertainty of one echo
   \centering
-  \figplaceholder[3cm]{One horizontal echo with two local maxima: (a) the measured arc coloured with
-  the mapping of Eq.~\eqref{eq:msis_colour}; (b) log-likelihood (top) and inverse Fisher information
-  (bottom) along $\theta$; (c) the two resulting beta distributions (own data, or adapted from Fig.~10
-  of \citealt{breux2020elevation})}
-  \caption{Uncertainty estimation for a horizontal echo hitting the wall at two elevations.}
+  \includegraphics[width=\linewidth]{figures/diagrams.png}
+  \caption{Uncertainty estimation for one echo of the horizontal sonar, over its whole vertical
+           aperture $\theta \in [-b/2,\, b/2]$ ($b = 25^\circ \approx 0.44$~rad).
+           \emph{Top left:} likelihood $p(\rho^v \mid \theta)$ of each candidate elevation angle,
+           i.e.\ how well the 3D point given by $\theta$ falls on the surface estimated by the
+           Gaussian process (Eq.~\eqref{eq:msis_loglik}). It has a single local maximum,
+           $\bar{\theta} \approx -0.125$~rad (dashed blue line); for $\theta > -0.05$~rad the points
+           fall far from the surface and the likelihood vanishes.
+           \emph{Bottom left:} inverse Fisher information $1/\mathcal{I}(\theta)$, i.e.\ the variance
+           $\sigma_\theta^2$ an estimate would have at each $\theta$ (Eq.~\eqref{eq:msis_sigmatheta}).
+           It is small where the likelihood changes quickly with $\theta$ and grows without bound where
+           the likelihood is flat (around $0.1$~rad). At $\bar{\theta}$ it is about
+           $0.0048$~rad$^2$, i.e.\ $\sigma_\theta \approx 0.07$~rad, just below the threshold
+           $\sigma_T = \sigma_m \approx 0.073$~rad, so the estimate is kept.
+           \emph{Right:} resulting scaled beta distribution $p(\theta)$ of the estimate
+           (Eq.~\eqref{eq:def_beta}), with mean $\bar{\theta}$ and variance $\sigma_\theta^2$
+           ($\alpha \approx 1.2$, $\beta \approx 4.4$). Because $\bar{\theta}$ is close to the lower
+           edge of the beam and the distribution cannot extend beyond it, it is skewed: its peak
+           ($\approx -0.19$~rad) lies closer to the edge than its mean.}
   \label{fig:msis_uncertainty}
 \end{figure}
 
-\hint{Add the settings used on the NavScoot~2 data: how the echoes are extracted from the Ping360
-intensity profiles, how the recording is cut into complete scans, the kernels and hyperparameters
-chosen, the number of samples $n_q$ and the threshold $k$.}
+% \hint{Add the settings used on the NavScoot~2 data: how the echoes are extracted from the Ping360
+% intensity profiles, how the recording is cut into complete scans, the kernels and hyperparameters
+% chosen, the number of samples $n_q$ and the threshold $k$.}
 
 % ==============================================================================
 \clearpage                               % the pseudocode starts on its own page

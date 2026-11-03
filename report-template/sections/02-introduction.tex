@@ -1,0 +1,54 @@
+\section{Introduction}                   % obligatory
+\label{sec:introduction}                 % \secref{sec:introduction}
+
+% ------------------------------------------------------------------------------ host institution
+This research project was carried out at ENSTA and more specifically hosted by U2IS (\emph{Unit\'e d'informatique et
+d'ing\'enierie des syst\`emes}), the computer science and systems engineering laboratory, whose research covers robotics and artificial intelligence, vision and
+perception, and the design of systems with a high level of decision-making autonomy. This project continues a previous internship work on the 3D reconstruction \citep{margaritis2025internship} of a flooded karst conduit
+from sonar data and build upon a prior work of \citep{breux2020elevation}. 
+
+% % ------------------------------------------------------------------------------ context and importance
+% Flooded karst conduits store the groundwater used by about a quarter of the world's population
+% \citep{goldscheider2020karst}, but they also carry dangerous flash floods, as in the city of
+% N\^imes \citep{marechal2008nimes}. Managing these aquifers requires knowing the geometry of their
+% conduits, which are often too deep, too long or too narrow for human divers. Robots and
+% diver-propelled vehicles can go further, and they map the conduits with sonars, since the water is
+% often too turbid for cameras \citep{breux2020elevation}. A previous internship built a 3D point
+% cloud of the Fontaine de N\^imes conduit from the data of the NavScoot~2
+% \citep{margaritis2025internship}, but it used only one of its two sonars: the vertical profiling
+% sonar, which measures one cross-section of the conduit at a time. The second sonar, a horizontal
+% scanning sonar with a wide beam, sees the walls along the direction of travel and covers much more
+% of the conduit at each rotation, but its measurements were left unused because the height of each
+% of its echoes inside the $25^\circ$ beam is unknown.
+
+% % ------------------------------------------------------------------------------ objectives
+% The aim of this project is to exploit the horizontal sonar. Its objectives are:
+% \begin{enumerate}                        % project objectives
+%   \item to estimate the elevation angle of every echo of the horizontal sonar, together with its
+%         uncertainty, so that each echo becomes a 3D point;
+%   \item to do so by implementing the scan-merging method of \citet{breux2020elevation}, which uses
+%         the accurate vertical sonar to model the surrounding wall and then finds the elevation at
+%         which each horizontal echo lies on that wall;
+%   \item to merge the points of both sonars into a single, denser point cloud of the conduit, and to
+%         evaluate the result on the data recorded in the Fontaine de N\^imes.
+% \end{enumerate}
+
+% % ------------------------------------------------------------------------------ work done
+% To reach these objectives, the complete method was implemented in Python and applied to the dive
+% of the NavScoot~2, scan by scan. For each complete scan, the trajectory is parameterized by its
+% curvilinear abscissa, an elliptic cylinder is fitted to the vertical sonar points as a prior shape
+% of the conduit, and a Gaussian process learns how the real wall deviates from this cylinder. Every
+% horizontal echo is then tested over the whole vertical aperture of the beam: the most likely
+% elevation angles are those whose 3D points fall on the estimated wall, and each of them receives a
+% scaled beta distribution describing its uncertainty. Along the way, the pseudocode of the original
+% paper was checked line by line and a few errors were corrected. Beyond a denser map for
+% hydrogeologists, recovering the 3D information of the wide-beam sonar is a step towards localizing
+% an underwater vehicle in a karst by matching successive sonar scans, where the wide beam increases
+% the overlap between scans \citep{breux2020elevation}.
+
+% ------------------------------------------------------------------------------ outline
+The report is organized as follows. \secref{sec:background} presents the scientific context, the
+acquisition platform and the existing processing chain. \secref{sec:definitions} fixes the notation
+and models, \secref{sec:msis_merging} describes the scan-merging method and its pseudocode, and
+\secref{sec:results} presents the merged point clouds obtained on the Fontaine de N\^imes data.
+\secref{sec:conclusions} summarizes the work and proposes directions for future work.

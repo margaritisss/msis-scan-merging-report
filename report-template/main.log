@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.4.4)  3 NOV 2026 15:27
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.4.4)  3 NOV 2026 19:48
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -838,13 +838,13 @@ LaTeX Font Info:    Font shape `T1/phv/b/n' will be
  (./main.toc (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 3.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 4.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 3.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 4.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msb.cfg
@@ -853,58 +853,58 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
- [2 <./assets/Logo_ENSTA_IPParis_V.pdf>] (./sections/02-background.tex
-LaTeX Font Info:    Font shape `T1/phv/b/n' will be
-(Font)              scaled to size 11.03998pt on input line 10.
+ [2 <./assets/Logo_ENSTA_IPParis_V.pdf>] (./sections/02-introduction.tex
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 21.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 6.
 LaTeX Font Info:    Font shape `T1/phv/m/sl' will be
-(Font)              scaled to size 9.19998pt on input line 21.
-LaTeX Font Info:    Trying to load font information for TS1+phv on input line 32.
+(Font)              scaled to size 9.19998pt on input line 6.
+) (./sections/03-background.tex
+LaTeX Font Info:    Font shape `T1/phv/b/n' will be
+(Font)              scaled to size 11.03998pt on input line 9.
+<figures/Scooter.png, id=177, 420.44579pt x 328.60266pt>
+File: figures/Scooter.png Graphic file (type png)
+<use figures/Scooter.png>
+Package pdftex.def Info: figures/Scooter.png  used on input line 43.
+(pdftex.def)             Requested size: 182.02634pt x 142.2641pt.
+<figures/Scooter_diver.png, id=179, 482.55281pt x 287.57437pt>
+File: figures/Scooter_diver.png Graphic file (type png)
+<use figures/Scooter_diver.png>
+Package pdftex.def Info: figures/Scooter_diver.png  used on input line 48.
+(pdftex.def)             Requested size: 218.5163pt x 130.22343pt.
+<figures/initial_point_cloud.png, id=189, 904.88063pt x 931.22906pt>
+File: figures/initial_point_cloud.png Graphic file (type png)
+<use figures/initial_point_cloud.png>
+Package pdftex.def Info: figures/initial_point_cloud.png  used on input line 69.
+(pdftex.def)             Requested size: 248.82224pt x 256.06747pt.
+ [3
+
+] [4
+pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.92 
+     
+pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.92 
+      <./figures/Scooter.png> <./figures/Scooter_diver.png> <./figures/initial_point_cloud.png>]
+<figures/scanning_planes.jpeg, id=223, 1361.085pt x 770.88pt>
+File: figures/scanning_planes.jpeg Graphic file (type jpg)
+<use figures/scanning_planes.jpeg>
+Package pdftex.def Info: figures/scanning_planes.jpeg  used on input line 95.
+(pdftex.def)             Requested size: 409.72014pt x 232.05388pt.
+) (./sections/04-definitions.tex
+LaTeX Font Info:    Trying to load font information for TS1+phv on input line 14.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1phv.fd
 File: ts1phv.fd 2020/03/25 scalable font definitions for TS1/phv.
 )
 LaTeX Font Info:    Font shape `TS1/phv/m/n' will be
-(Font)              scaled to size 9.19998pt on input line 32.
+(Font)              scaled to size 9.19998pt on input line 14.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `phv' (encoding: TS1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-<figures/Scooter.png, id=176, 420.44579pt x 328.60266pt>
-File: figures/Scooter.png Graphic file (type png)
-<use figures/Scooter.png>
-Package pdftex.def Info: figures/Scooter.png  used on input line 50.
-(pdftex.def)             Requested size: 182.02634pt x 142.2641pt.
-<figures/Scooter_diver.png, id=178, 482.55281pt x 287.57437pt>
-File: figures/Scooter_diver.png Graphic file (type png)
-<use figures/Scooter_diver.png>
-Package pdftex.def Info: figures/Scooter_diver.png  used on input line 55.
-(pdftex.def)             Requested size: 218.5163pt x 130.22343pt.
- [3
-
-
-pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.70   \item \textbf
-                    {Trajectory.} DVL velocity spikes above 2~m/s are remove... <./figures/Scooter.png> <./figures/Scooter_diver.png>]
-<figures/initial_point_cloud.png, id=208, 904.88063pt x 931.22906pt>
-File: figures/initial_point_cloud.png Graphic file (type png)
-<use figures/initial_point_cloud.png>
-Package pdftex.def Info: figures/initial_point_cloud.png  used on input line 89.
-(pdftex.def)             Requested size: 248.82224pt x 256.06747pt.
- [4
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.111   \item \textbf
-                     {Fusion of perpendicular scans:} the two sonars observe... <./figures/initial_point_cloud.png>]
-<figures/scanning_planes.jpeg, id=228, 1361.085pt x 770.88pt>
-File: figures/scanning_planes.jpeg Graphic file (type jpg)
-<use figures/scanning_planes.jpeg>
-Package pdftex.def Info: figures/scanning_planes.jpeg  used on input line 120.
-(pdftex.def)             Requested size: 409.72014pt x 232.05388pt.
-) (./sections/03-introduction.tex) (./sections/04-definitions.tex
 LaTeX Font Info:    Trying to load font information for U+euf on input line 24.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/ueuf.fd
 File: ueuf.fd 2013/01/14 v3.01 Euler Fraktur
@@ -916,12 +916,12 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has
                                                   \__shipout_drop_firstpage_...
 l.31   \item O
               rientations can also be given by Euler angles $[\psi\ \chi\ \p... <./figures/scanning_planes.jpeg>]
-<figures/frames_used.png, id=251, 1761.58125pt x 899.36pt>
+<figures/frames_used.png, id=246, 1761.58125pt x 899.36pt>
 File: figures/frames_used.png Graphic file (type png)
 <use figures/frames_used.png>
 Package pdftex.def Info: figures/frames_used.png  used on input line 110.
 (pdftex.def)             Requested size: 364.19077pt x 185.93442pt.
-<figures/several_elevation_angles.png, id=252, 1302.8675pt x 1043.9pt>
+<figures/several_elevation_angles.png, id=247, 1302.8675pt x 1043.9pt>
 File: figures/several_elevation_angles.png Graphic file (type png)
 <use figures/several_elevation_angles.png>
 Package pdftex.def Info: figures/several_elevation_angles.png  used on input line 112.
@@ -932,17 +932,17 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) has
                                                   \__shipout_drop_firstpage_...
 l.131 \begin{equation}
                                                % observation model <./figures/frames_used.png> <./figures/several_elevation_angles.png>]) (./sections/05-msis-scan-merging.tex [8] [9] [10]
-<figures/points.png, id=368, 1035.87pt x 600.2425pt>
+<figures/points.png, id=363, 1035.87pt x 600.2425pt>
 File: figures/points.png Graphic file (type png)
 <use figures/points.png>
 Package pdftex.def Info: figures/points.png  used on input line 193.
 (pdftex.def)             Requested size: 145.66885pt x 84.40889pt.
-<figures/initial_cyliner.png, id=369, 1114.1625pt x 714.67pt>
+<figures/initial_cyliner.png, id=364, 1114.1625pt x 714.67pt>
 File: figures/initial_cyliner.png Graphic file (type png)
 <use figures/initial_cyliner.png>
 Package pdftex.def Info: figures/initial_cyliner.png  used on input line 198.
 (pdftex.def)             Requested size: 145.67924pt x 93.4447pt.
-<figures/optimised.png, id=370, 1027.84pt x 813.0375pt>
+<figures/optimised.png, id=365, 1027.84pt x 813.0375pt>
 File: figures/optimised.png Graphic file (type png)
 <use figures/optimised.png>
 Package pdftex.def Info: figures/optimised.png  used on input line 203.
@@ -953,12 +953,12 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) has
                                                   \__shipout_drop_firstpage_...
 l.261 
        <./figures/points.png> <./figures/initial_cyliner.png> <./figures/optimised.png>]
-<figures/gp_1.png, id=400, 1353.055pt x 1015.795pt>
+<figures/gp_1.png, id=395, 1353.055pt x 1015.795pt>
 File: figures/gp_1.png Graphic file (type png)
 <use figures/gp_1.png>
 Package pdftex.def Info: figures/gp_1.png  used on input line 302.
 (pdftex.def)             Requested size: 223.07211pt x 167.45944pt.
-<figures/gp_2.png, id=401, 1353.055pt x 1015.795pt>
+<figures/gp_2.png, id=396, 1353.055pt x 1015.795pt>
 File: figures/gp_2.png Graphic file (type png)
 <use figures/gp_2.png>
 Package pdftex.def Info: figures/gp_2.png  used on input line 307.
@@ -973,7 +973,7 @@ LaTeX Font Info:    Font shape `T1/phv/m/n' will be
 (Font)              scaled to size 6.43999pt on input line 344.
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
 (Font)              scaled to size 4.59999pt on input line 344.
-<figures/fig_6.png, id=419, 1784.6675pt x 784.9325pt>
+<figures/fig_6.png, id=414, 1784.6675pt x 784.9325pt>
 File: figures/fig_6.png Graphic file (type png)
 <use figures/fig_6.png>
 Package pdftex.def Info: figures/fig_6.png  used on input line 365.
@@ -984,12 +984,12 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.7}) has
                                                   \__shipout_drop_firstpage_...
 l.392 \begin{equation}
                                                % segments crossing the plane <./figures/fig_6.png>]
-<figures/fig_7.jpeg, id=447, 1348.03625pt x 803.0pt>
+<figures/fig_7.jpeg, id=442, 1348.03625pt x 803.0pt>
 File: figures/fig_7.jpeg Graphic file (type jpg)
 <use figures/fig_7.jpeg>
 Package pdftex.def Info: figures/fig_7.jpeg  used on input line 464.
 (pdftex.def)             Requested size: 334.35478pt x 199.1689pt.
-<figures/fig_8.png, id=452, 1754.555pt x 869.2475pt>
+<figures/fig_8.png, id=447, 1754.555pt x 869.2475pt>
 File: figures/fig_8.png Graphic file (type png)
 <use figures/fig_8.png>
 Package pdftex.def Info: figures/fig_8.png  used on input line 472.
@@ -1004,30 +1004,36 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.9}) has
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.516 
-       <./figures/fig_7.jpeg> <./figures/fig_8.png>] [16] [17
+       <./figures/fig_7.jpeg> <./figures/fig_8.png>] [16]
+<figures/diagrams.png, id=538, 2386.9175pt x 979.66pt>
+File: figures/diagrams.png Graphic file (type png)
+<use figures/diagrams.png>
+Package pdftex.def Info: figures/diagrams.png  used on input line 688.
+(pdftex.def)             Requested size: 455.24411pt x 186.8399pt.
+ [17
 pdfTeX warning (ext4): destination with the same identifier (name{figure.10}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.699 
-      ] [18
+l.715 \clearpage
+                                               % the pseudocode starts on it...] [18
 pdfTeX warning (ext4): destination with the same identifier (name{figure.11}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.701 \clearpage
-                                               % the pseudocode starts on it...]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 712.
+l.715 \clearpage
+                                               % the pseudocode starts on it... <./figures/diagrams.png>]
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 726.
 LaTeX Font Info:    Font shape `T1/phv/b/n' will be
-(Font)              scaled to size 8.27998pt on input line 716.
+(Font)              scaled to size 8.27998pt on input line 730.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <9> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 722.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 736.
 LaTeX Font Info:    Font shape `T1/phv/m/sl' will be
-(Font)              scaled to size 8.27998pt on input line 722.
+(Font)              scaled to size 8.27998pt on input line 736.
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 7.35999pt on input line 723.
+(Font)              scaled to size 7.35999pt on input line 737.
 LaTeX Font Info:    Font shape `T1/phv/m/sc' will be
-(Font)              scaled to size 8.27998pt on input line 733.
+(Font)              scaled to size 8.27998pt on input line 747.
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 5.51999pt on input line 733.
+(Font)              scaled to size 5.51999pt on input line 747.
  [19
 
 ] [20]) (./sections/06-results.tex
@@ -1079,21 +1085,21 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: E383E89774C133A1C72B284B69549E0C;4412.
+(rerunfilecheck)             Checksum: D8D695FD6E552EB58ABEFCEEDE9D108F;4412.
  ) 
 Here is how much of TeX's memory you used:
- 39249 strings out of 476106
- 868937 string characters out of 5793934
- 1962975 words of memory out of 5000000
- 59932 multiletter control sequences out of 15000+600000
- 665638 words of font info for 404 fonts, out of 8000000 for 9000
+ 39223 strings out of 476106
+ 868581 string characters out of 5793934
+ 1963975 words of memory out of 5000000
+ 59927 multiletter control sequences out of 15000+600000
+ 664848 words of font info for 394 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
- 99i,19n,101p,1052b,2303s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 99i,19n,101p,1681b,2303s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/euler/eufm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on main.pdf (23 pages, 7949156 bytes).
+Output written on main.pdf (23 pages, 8136253 bytes).
 PDF statistics:
- 829 PDF objects out of 1000 (max. 8388607)
- 687 compressed objects within 7 object streams
- 152 named destinations out of 1000 (max. 500000)
- 117070 words of extra memory for PDF output out of 128383 (max. 10000000)
+ 828 PDF objects out of 1000 (max. 8388607)
+ 681 compressed objects within 7 object streams
+ 145 named destinations out of 1000 (max. 500000)
+ 117075 words of extra memory for PDF output out of 128383 (max. 10000000)
 
