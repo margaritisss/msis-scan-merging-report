@@ -45,9 +45,18 @@ built over several seconds while the vehicle keeps moving.
 
 \begin{figure}[!htbp]                    % the acquisition platform
   \centering
-  \figplaceholder[2.8cm]{Photo: the NavScoot~2 with the two sonars labelled, next to a photo of the
-  diver operating it in the conduit (Figs.~2--3 of the previous report)}
-  \caption{The NavScoot~2 acquisition platform \citep{margaritis2025internship}.}
+  \begin{minipage}[b]{0.48\linewidth}    % left: the vehicle
+    \centering
+    \includegraphics[width=\linewidth, height=5cm, keepaspectratio]{figures/Scooter.png}\\[0.3em]
+    {\small (a)}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.48\linewidth}    % right: the diver operating it
+    \centering
+    \includegraphics[width=\linewidth, height=5cm, keepaspectratio]{figures/Scooter_diver.png}\\[0.3em]
+    {\small (b)}
+  \end{minipage}
+  \caption{The NavScoot~2 acquisition platform \citep{margaritis2025internship}: (a) the vehicle
+           with its sensors; (b) the diver operating it.}
   \label{fig:bg_navscoot}
 \end{figure}
 
@@ -77,10 +86,8 @@ was then turned into a surface mesh with learning-based reconstruction methods.
 
 \begin{figure}[!htbp]                    % the data this project starts from
   \centering
-  \figplaceholder[2.8cm]{Point cloud of the conduit with the vehicle trajectory, before and after
-  Continuous-time SLAM (Fig.~9 of the previous report)}
-  \caption{Point cloud obtained from the vertical sonar, before (left) and after (right) drift
-           correction \citep{margaritis2025internship}.}
+  \includegraphics[width=0.9\linewidth, height=9cm, keepaspectratio]{figures/initial_point_cloud.png}
+  \caption{Initial point cloud of the conduit obtained from the vertical sonar \citep{margaritis2025internship}.}
   \label{fig:bg_pointcloud}
 \end{figure}
 
@@ -91,10 +98,8 @@ was then turned into a surface mesh with learning-based reconstruction methods.
 The point cloud of \citet{margaritis2025internship}, and everything built on it, uses only the
 echoes of the vertical sonar. Each vertical scan describes one cross-section of the conduit, so
 the map is a sequence of slices whose spacing along the conduit depends entirely on the estimated
-trajectory. Compared with GPS points measured at surface access points of the cave, parts of the
-corrected cloud are still axially compressed, a sign of residual drift that the vertical slices
-cannot constrain. The horizontal sonar, recorded during the same dive, sees the walls along the
-direction of travel and could provide exactly this missing information
+trajectory. The horizontal sonar, recorded during the same dive, sees the walls along the
+direction of travel and could provide extra information about the conduit geometry, but it was not used in that work.
 (Figure~\ref{fig:bg_scanplanes}).
 
 Exploiting it is, however, not trivial:
@@ -112,9 +117,7 @@ sonar data into one consistent point cloud (\secref{sec:msis_merging}).
 
 \begin{figure}[!htbp]                    % geometry of the two scanning planes
   \centering
-  \figplaceholder[2.8cm]{Diagram: the vehicle in the conduit with the vertical sonar scanning a
-  cross-section and the horizontal sonar scanning a horizontal plane; show the 25$^\circ$ vertical
-  aperture of the horizontal beam}
+  \includegraphics[width=0.9\linewidth, height=9cm, keepaspectratio]{figures/scanning_planes.jpeg}
   \caption{Scanning planes of the two MSIS on the NavScoot~2.}
   \label{fig:bg_scanplanes}
 \end{figure}

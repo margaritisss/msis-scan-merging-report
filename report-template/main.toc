@@ -1,0 +1,33 @@
+\babel@toc {english}{}\relax 
+\contentsline {section}{\numberline {1}Background}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Karst conduits and the RKE project}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Data acquisition}{3}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}From raw data to a point cloud}{4}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}The unused horizontal sonar}{4}{subsection.1.4}%
+\contentsline {section}{\numberline {2}Introduction}{5}{section.2}%
+\contentsline {section}{\numberline {3}Definitions}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Notation}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Frames and poses}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Sonar measurements}{6}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Gaussian process regression}{8}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Scaled beta distribution}{8}{subsection.3.5}%
+\contentsline {section}{\numberline {4}MSIS Scan Merging}{8}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Environment model}{9}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Algorithm description}{10}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Environment prior}{10}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Gaussian process regression and kernel choices}{11}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}Maximum likelihood estimation of the elevation angle}{12}{subsubsection.4.2.3}%
+\contentsline {paragraph}{1. Selection of the trajectory segments.}{12}{paragraph*.1}%
+\contentsline {paragraph}{2. Interpolation of the pose.}{13}{paragraph*.2}%
+\contentsline {paragraph}{3. Virtual vertical measurement.}{14}{paragraph*.3}%
+\contentsline {paragraph}{4. Log-likelihood.}{15}{paragraph*.4}%
+\contentsline {paragraph}{5. Local maxima.}{15}{paragraph*.5}%
+\contentsline {subsubsection}{\numberline {4.2.4}Estimation uncertainty}{15}{subsubsection.4.2.4}%
+\contentsline {paragraph}{Derivation of the Fisher information.}{16}{paragraph*.6}%
+\contentsline {paragraph}{Validity thresholds.}{16}{paragraph*.7}%
+\contentsline {subsection}{\numberline {4.3}Pseudocode}{18}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Results}{20}{section.5}%
+\contentsline {section}{\numberline {6}Conclusions and Recommendations}{20}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Conclusions}{20}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Recommendations}{20}{subsection.6.2}%
+\contentsline {section}{List of References}{21}{subsection.6.2}%

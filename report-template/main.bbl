@@ -1,0 +1,73 @@
+\begin{thebibliography}{}
+
+\bibitem[Batiot-Guilhe et~al., 2013]{batiot2013nimes}
+Batiot-Guilhe, P., D{\"o}rfliger, N., Ladouche, B., and Soulas, M. (2013).
+\newblock Contribution of a conceptual hydrogeological model to the definition of a flash flood warning system in a complex karst environment: the example of the {N{\^i}mes} karst aquifer (southern {France}).
+\newblock {\em Engineering Geology}, 164:1--13.
+
+\bibitem[Blanco, 2010]{blanco2010tutorial}
+Blanco, J.-L. (2010).
+\newblock A tutorial on {SE(3)} transformation parameterizations and on-manifold optimization.
+\newblock Technical report, University of Malaga, Malaga, Spain.
+
+\bibitem[Borrmann et~al., 2008]{borrmann2008globally}
+Borrmann, D., Elseberg, J., Lingemann, K., N{\"u}chter, A., and Hertzberg, J. (2008).
+\newblock Globally consistent {3D} mapping with scan matching.
+\newblock {\em Robotics and Autonomous Systems}, 56(2):130--142.
+
+\bibitem[Breux and Lapierre, 2020]{breux2020elevation}
+Breux, Y. and Lapierre, L. (2020).
+\newblock Elevation angle estimations of wide-beam acoustic sonar measurements for autonomous underwater karst exploration.
+\newblock {\em Sensors}, 20(14):4028.
+
+\bibitem[Ford and Williams, 2007]{ford2007karst}
+Ford, D.~C. and Williams, P.~W. (2007).
+\newblock {\em Karst Hydrogeology and Geomorphology}.
+\newblock John Wiley \& Sons, Chichester, UK.
+
+\bibitem[Goldscheider et~al., 2020]{goldscheider2020karst}
+Goldscheider, N., Chen, Z., Auler, A.~S., Bakalowicz, M., Broda, S., Drew, D., Hartmann, J., Jiang, G., Moosdorf, N., Stevanovic, Z., et~al. (2020).
+\newblock Global distribution of carbonate rocks and karst water resources.
+\newblock {\em Hydrogeology Journal}, 28(5):1661--1677.
+
+\bibitem[Johnson et~al., 1994]{johnson1994continuous}
+Johnson, N.~L., Kotz, S., and Balakrishnan, N. (1994).
+\newblock {\em Continuous Univariate Distributions}.
+\newblock John Wiley \& Sons, New York, NY.
+
+\bibitem[Lapierre et~al., 2021]{lapierre2021karst}
+Lapierre, L., Zapata, R., Lepinay, P., and Ropars, B. (2021).
+\newblock Karst exploration: unconstrained attitude dynamic control for an {AUV}.
+\newblock {\em Ocean Engineering}, 219.
+
+\bibitem[Lasbouygues et~al., 2017]{lasbouygues2017karst}
+Lasbouygues, A., Louis, S., Ropars, B., Rossi, L., Jourde, H., D{\'e}las, H., Balordi, P., Bouchard, R., Dighouth, M., Dugrenot, M., Jacquemin, E., Vasseur, F., Lapierre, L., and Andreu, D. (2017).
+\newblock Robotic mapping of a karst aquifer.
+\newblock In {\em IFAC World Congress}.
+
+\bibitem[Mar{\'e}chal et~al., 2008]{marechal2008nimes}
+Mar{\'e}chal, B., Ladouche, B., and D{\"o}rfliger, N. (2008).
+\newblock Karst flash flooding in a {Mediterranean} environment, hydro-geological and multi-physical approach for the 3 {October} 1988 {N{\^i}mes} flood.
+\newblock {\em Engineering Geology}, 99(3--4):168--181.
+
+\bibitem[Margaritis, 2025]{margaritis2025internship}
+Margaritis, G.~E. (2025).
+\newblock {3D} underwater scene reconstruction with sonar data.
+\newblock Internship report, ENSTA -- Institut Polytechnique de Paris.
+
+\bibitem[Mat{\'e}rn, 1986]{matern1986spatial}
+Mat{\'e}rn, B. (1986).
+\newblock {\em Spatial Variation}, volume~36 of {\em Lecture Notes in Statistics}.
+\newblock Springer, New York, NY.
+
+\bibitem[N{\"u}chter et~al., 2017]{nuchter2017cartographer}
+N{\"u}chter, A., Bleier, M., Schauer, J., and Janotta, P. (2017).
+\newblock Improving {Google's} {Cartographer} {3D} mapping by continuous-time {SLAM}.
+\newblock In {\em Proceedings of the 7th ISPRS International Workshop 3D-ARCH}, pages 543--549, Nafplio, Greece.
+
+\bibitem[Rasmussen and Williams, 2006]{rasmussen2006gaussian}
+Rasmussen, C.~E. and Williams, C. K.~I. (2006).
+\newblock {\em Gaussian Processes for Machine Learning}.
+\newblock MIT Press, Cambridge, MA.
+
+\end{thebibliography}

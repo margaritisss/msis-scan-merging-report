@@ -188,11 +188,24 @@ which, like any such optimization, needs a good initial shape. It is done in thr
 
 \begin{figure}[!htb]                     % elliptic cylinder prior
   \centering
-  \figplaceholder[3cm]{Vertical sonar points of one scan with the fitted elliptic cylinder: (a) top
-  view, (b) side view; initial shape from the RPCA and final shape after Levenberg--Marquardt
-  refinement (own data, or adapted from Fig.~5 of \citealt{breux2020elevation})}
-  \caption{Elliptic cylinder prior fitted to the vertical sonar points of one scan: RPCA
-           initialization and Levenberg--Marquardt result.}
+  \begin{minipage}[b]{0.32\linewidth}    % (a) vertical sonar points
+    \centering
+    \includegraphics[width=\linewidth, height=4.5cm, keepaspectratio]{figures/points.png}\\[0.2em]
+    {\small (a)}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.32\linewidth}    % (b) initial cylinder from the RPCA
+    \centering
+    \includegraphics[width=\linewidth, height=4.5cm, keepaspectratio]{figures/initial_cyliner.png}\\[0.2em]
+    {\small (b)}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.32\linewidth}    % (c) cylinder after LM optimization
+    \centering
+    \includegraphics[width=\linewidth, height=4.5cm, keepaspectratio]{figures/optimised.png}\\[0.2em]
+    {\small (c)}
+  \end{minipage}
+  \caption{Elliptic cylinder prior fitted to the vertical sonar points of one scan: (a) the vertical
+           sonar points, (b) the initial cylinder estimated by RPCA, (c) the final cylinder after
+           Levenberg--Marquardt optimization.}
   \label{fig:msis_prior}
 \end{figure}
 
@@ -307,12 +320,10 @@ Algorithm~\ref{alg:msis_mle} (\secref{sec:msis_pseudocode}).
 
 \begin{figure}[!htb]                     % principle of the elevation search
   \centering
-  \figplaceholder[3cm]{Vertical slice of the conduit: estimated surface (GP mean) with its
-  $\pm3\sigma$ band, the horizontal sonar beam of aperture $\Theta_H$ and, on both sides, the likelihood
-  $p(\rho \mid \theta)$ along the measured arcs, with two local maxima $\theta_{i,1}$, $\theta_{i,2}$
-  on one side (own figure, or adapted from Fig.~6 of \citealt{breux2020elevation})}
+  \includegraphics[width=0.85\linewidth, height=7cm, keepaspectratio]{figures/fig_6.png}
   \caption{Principle of the elevation angle estimation on a vertical slice: the elevations whose
-           points fall on the estimated surface are the most likely.}
+           points fall on the estimated surface are the most likely. Adapted from
+           \citet{breux2020elevation}.}
   \label{fig:msis_mle}
 \end{figure}
 
@@ -408,23 +419,17 @@ $\hat{t}$.
 
 \begin{figure}[!htb]                     % geometry of the virtual vertical measurement
   \centering
-  \figplaceholder[3cm]{3D view of the trajectory during one scan: the horizontal sonar measures a
-  point $\mathbf{x}(\theta_q)$ of the surface $\Omega$ at $\boldsymbol{\eta}_k$; the interpolated pose
-  $\hat{\boldsymbol{\eta}}_q$ with abscissa $\hat{s}_q$ and its virtual vertical sonar plane containing
-  $\mathbf{x}(\theta_q)$, with the angle $\hat{\psi}^v_q$ (adapted from Fig.~7 of
-  \citealt{breux2020elevation})}
-  \caption{Virtual vertical measurement of a candidate point seen by the horizontal sonar.}
+  \includegraphics[width=0.85\linewidth, height=7cm, keepaspectratio]{figures/fig_7.jpeg}
+  \caption{Virtual vertical measurement of a candidate point seen by the horizontal sonar. Adapted
+           from \citet{breux2020elevation}.}
   \label{fig:msis_virtual}
 \end{figure}
 
 \begin{figure}[!htb]                     % segment selection
   \centering
-  \figplaceholder[3cm]{Top view: the vertical sonar planes and rotation axes
-  $\mathbf{n}^v|_{\{0\},i}$ along the trajectory, the candidate point $\mathbf{x}(\theta_q)$, the
-  projections of $\mathbf{x}(\theta_q) - \boldsymbol{\tau}^V$ on the axes at the two ends of the selected
-  segment (opposite signs) and the interpolated position $\hat{\boldsymbol{\tau}}_q$ (adapted from
-  Fig.~8 of \citealt{breux2020elevation})}
-  \caption{Selection of the trajectory segment containing the pose of the virtual measurement.}
+  \includegraphics[width=0.85\linewidth, height=7cm, keepaspectratio]{figures/fig_8.png}
+  \caption{Selection of the trajectory segment containing the pose of the virtual measurement.
+           Adapted from \citet{breux2020elevation}.}
   \label{fig:msis_segments}
 \end{figure}
 

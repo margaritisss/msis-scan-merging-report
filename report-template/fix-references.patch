@@ -1,0 +1,246 @@
+From 8e3773e383c38033a7b84a14a769ac933dbba174 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 3 Nov 2026 12:55:41 +0100
+Subject: [PATCH] Fix references: verified against original sources, all
+ authors listed
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- Goldscheider et al. (2020): add missing 11th author (G. Veni), fix Z. Chen
+- Maréchal et al. (2008): correct title, first names and pages (138-146)
+- Replace non-existent Batiot-Guilhe et al. (2013) with Fleury et al. (2013)
+- Nüchter et al. (2017): fix first name (Peter Janotta), cite as ISPRS Archives
+- Johnson et al.: cite Volume 2 (1995), which contains the beta distribution
+- Add DOIs, full first names, ISBNs; fix .gitignore (leading spaces)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_017xApH4d4PnkjZm4edzXDQg
+---
+ report-template/.gitignore                    |  6 +-
+ report-template/references.bib                | 88 +++++++++++--------
+ report-template/sections/02-background.tex    |  2 +-
+ report-template/sections/04-definitions.tex   |  2 +-
+ .../sections/05-msis-scan-merging.tex         |  2 +-
+ 5 files changed, 58 insertions(+), 42 deletions(-)
+
+diff --git a/report-template/.gitignore b/report-template/.gitignore
+index 96de7b3..fcd189b 100644
+--- a/report-template/.gitignore
++++ b/report-template/.gitignore
+@@ -1,3 +1,3 @@
+-   # compiled output from LaTeX Workshop, never upload it
+-   build/
+-   Referenced_papers/
++# compiled output from LaTeX Workshop, never upload it
++build/
++Referenced_papers/
+diff --git a/report-template/references.bib b/report-template/references.bib
+index 42484cb..9ca19e3 100644
+--- a/report-template/references.bib
++++ b/report-template/references.bib
+@@ -1,4 +1,6 @@
+ % Add your BibTeX entries here; only entries you \cite appear in the reference list.
++% Every entry below was checked against the original source (publisher, authors' page or the
++% paper itself) and lists ALL authors with their full names.
+ 
+ @techreport{margaritis2025internship,
+   author      = {Margaritis, Georgios Evangelos},
+@@ -9,54 +11,62 @@
+ }
+ 
+ @book{ford2007karst,
+-  author    = {Ford, Derek C. and Williams, Paul W.},
++  author    = {Ford, Derek C. and Williams, Paul},
+   title     = {Karst Hydrogeology and Geomorphology},
+   publisher = {John Wiley \& Sons},
+   address   = {Chichester, UK},
+-  year      = {2007}
++  year      = {2007},
++  isbn      = {978-0-470-84996-5}
+ }
+ 
+ @article{goldscheider2020karst,
+-  author  = {Goldscheider, Nico and Chen, Zongyu and Auler, Augusto S. and Bakalowicz, Michel and Broda, Stefan and Drew, David and Hartmann, Jens and Jiang, Guanghui and Moosdorf, Nils and Stevanovic, Zoran and others},
++  author  = {Goldscheider, Nico and Chen, Zhao and Auler, Augusto S. and Bakalowicz, Michel and Broda, Stefan and Drew, David and Hartmann, Jens and Jiang, Guanghui and Moosdorf, Nils and Stevanovic, Zoran and Veni, George},
+   title   = {Global distribution of carbonate rocks and karst water resources},
+   journal = {Hydrogeology Journal},
+   volume  = {28},
+   number  = {5},
+   pages   = {1661--1677},
+-  year    = {2020}
++  year    = {2020},
++  doi     = {10.1007/s10040-020-02139-5}
+ }
+ 
+ @article{marechal2008nimes,
+-  author  = {Mar{\'e}chal, B. and Ladouche, B. and D{\"o}rfliger, N.},
+-  title   = {Karst flash flooding in a {Mediterranean} environment, hydro-geological and multi-physical approach for the 3 {October} 1988 {N{\^i}mes} flood},
++  author  = {Mar{\'e}chal, Jean-Christophe and Ladouche, Bernard and D{\"o}rfliger, Nathalie},
++  title   = {Karst flash flooding in a {Mediterranean} karst, the example of {Fontaine de N{\^i}mes}},
+   journal = {Engineering Geology},
+   volume  = {99},
+   number  = {3--4},
+-  pages   = {168--181},
+-  year    = {2008}
++  pages   = {138--146},
++  year    = {2008},
++  doi     = {10.1016/j.enggeo.2007.11.013}
+ }
+ 
+-@article{batiot2013nimes,
+-  author  = {Batiot-Guilhe, P. and D{\"o}rfliger, N. and Ladouche, B. and Soulas, M.},
+-  title   = {Contribution of a conceptual hydrogeological model to the definition of a flash flood warning system in a complex karst environment: the example of the {N{\^i}mes} karst aquifer (southern {France})},
++@article{fleury2013nimes,
++  author  = {Fleury, Perrine and Mar{\'e}chal, Jean-Christophe and Ladouche, Bernard},
++  title   = {Karst flash-flood forecasting in the city of {N{\^i}mes} (southern {France})},
+   journal = {Engineering Geology},
+   volume  = {164},
+-  pages   = {1--13},
+-  year    = {2013}
++  pages   = {26--35},
++  year    = {2013},
++  doi     = {10.1016/j.enggeo.2013.06.007}
+ }
+ 
+ @article{lapierre2021karst,
+-  author  = {Lapierre, L. and Zapata, R. and Lepinay, P. and Ropars, B.},
+-  title   = {Karst exploration: unconstrained attitude dynamic control for an {AUV}},
++  author  = {Lapierre, Lionel and Zapata, Ren{\'e} and Lepinay, Pascal and Ropars, Benoit},
++  title   = {Karst exploration: Unconstrained attitude dynamic control for an {AUV}},
+   journal = {Ocean Engineering},
+   volume  = {219},
+-  year    = {2021}
++  pages   = {108321},
++  year    = {2021},
++  doi     = {10.1016/j.oceaneng.2020.108321}
+ }
+ 
+ @inproceedings{lasbouygues2017karst,
+-  author    = {Lasbouygues, A. and Louis, S. and Ropars, B. and Rossi, L. and Jourde, H. and D{\'e}las, H. and Balordi, P. and Bouchard, R. and Dighouth, M. and Dugrenot, M. and Jacquemin, E. and Vasseur, F. and Lapierre, L. and Andreu, D.},
++  author    = {Lasbouygues, Adrien and Louis, Silvain and Ropars, Benoit and Rossi, Luc and Jourde, Herv{\'e} and D{\'e}las, H{\'e}l{\`e}ne and Balordi, Pedro and Bouchard, R{\'e}mi and Dighouth, Mehdi and Dugrenot, Manu and Jacquemin, Eric and Vasseur, Frank and Lapierre, Lionel and Andreu, David},
+   title     = {Robotic mapping of a karst aquifer},
+-  booktitle = {IFAC World Congress},
++  booktitle = {20th IFAC World Congress},
++  address   = {Toulouse, France},
++  note      = {Demonstration paper},
+   year      = {2017}
+ }
+ 
+@@ -67,16 +77,18 @@
+   volume  = {56},
+   number  = {2},
+   pages   = {130--142},
+-  year    = {2008}
++  year    = {2008},
++  doi     = {10.1016/j.robot.2007.07.002}
+ }
+ 
+-@inproceedings{nuchter2017cartographer,
+-  author    = {N{\"u}chter, Andreas and Bleier, Michael and Schauer, Johannes and Janotta, Philipp},
+-  title     = {Improving {Google's} {Cartographer} {3D} Mapping by Continuous-Time {SLAM}},
+-  booktitle = {Proceedings of the 7th ISPRS International Workshop 3D-ARCH},
+-  pages     = {543--549},
+-  address   = {Nafplio, Greece},
+-  year      = {2017}
++@article{nuchter2017cartographer,
++  author  = {N{\"u}chter, Andreas and Bleier, Michael and Schauer, Johannes and Janotta, Peter},
++  title   = {Improving {Google}'s {Cartographer} {3D} Mapping by Continuous-Time {SLAM}},
++  journal = {The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
++  volume  = {XLII-2/W3},
++  pages   = {543--549},
++  year    = {2017},
++  doi     = {10.5194/isprs-archives-XLII-2-W3-543-2017}
+ }
+ 
+ @article{breux2020elevation,
+@@ -91,19 +103,20 @@
+ }
+ 
+ @techreport{blanco2010tutorial,
+-  author      = {Blanco, Jose-Luis},
+-  title       = {A Tutorial on {SE(3)} Transformation Parameterizations and On-Manifold Optimization},
++  author      = {Blanco, Jos{\'e}-Luis},
++  title       = {A tutorial on {SE(3)} transformation parameterizations and on-manifold optimization},
+   institution = {University of Malaga},
+-  address     = {Malaga, Spain},
++  month       = sep,
+   year        = {2010}
+ }
+ 
+ @book{rasmussen2006gaussian,
+   author    = {Rasmussen, Carl Edward and Williams, Christopher K. I.},
+   title     = {Gaussian Processes for Machine Learning},
+-  publisher = {MIT Press},
++  publisher = {The MIT Press},
+   address   = {Cambridge, MA},
+-  year      = {2006}
++  year      = {2006},
++  isbn      = {0-262-18253-X}
+ }
+ 
+ @book{matern1986spatial,
+@@ -113,13 +126,16 @@
+   volume    = {36},
+   publisher = {Springer},
+   address   = {New York, NY},
+-  year      = {1986}
++  year      = {1986},
++  doi       = {10.1007/978-1-4615-7892-5}
+ }
+ 
+-@book{johnson1994continuous,
+-  author    = {Johnson, Norman L. and Kotz, Samuel and Balakrishnan, N.},
+-  title     = {Continuous Univariate Distributions},
++@book{johnson1995continuous,
++  author    = {Johnson, Norman L. and Kotz, Samuel and Balakrishnan, Narayanaswamy},
++  title     = {Continuous Univariate Distributions, Volume 2},
++  edition   = {Second},
+   publisher = {John Wiley \& Sons},
+   address   = {New York, NY},
+-  year      = {1994}
++  year      = {1995},
++  isbn      = {978-0-471-58494-0}
+ }
+diff --git a/report-template/sections/02-background.tex b/report-template/sections/02-background.tex
+index c8a2ded..a0c9c9e 100644
+--- a/report-template/sections/02-background.tex
++++ b/report-template/sections/02-background.tex
+@@ -16,7 +16,7 @@ quarter of the world's population \citep{goldscheider2020karst}. They are also a
+ moves through the conduits quickly and with little filtering, so pollution spreads fast, and
+ heavy rain can overwhelm the network and cause sudden floods. The Fontaine de N\^imes, the site
+ studied here, feeds the flash floods that threaten the city; the flood of 3~October~1988 killed
+-nine people \citep{marechal2008nimes, batiot2013nimes}. Modelling and managing such an aquifer
++nine people \citep{marechal2008nimes, fleury2013nimes}. Modelling and managing such an aquifer
+ requires knowing the geometry of its conduits, yet many of them are out of reach for human divers.
+ The \emph{Robots for Karst Exploration} (RKE) project therefore develops robotic platforms to map
+ these flooded networks \citep{lapierre2021karst}.
+diff --git a/report-template/sections/04-definitions.tex b/report-template/sections/04-definitions.tex
+index 8fcd597..a584894 100644
+--- a/report-template/sections/04-definitions.tex
++++ b/report-template/sections/04-definitions.tex
+@@ -165,7 +165,7 @@ a given problem.
+ 
+ An estimated elevation angle $\hat{\theta}$ can only lie inside the beam, so its uncertainty is not
+ modelled by a Gaussian, whose support is infinite, but by a beta distribution scaled to
+-$[-b/2,\, b/2]$ \citep{johnson1994continuous, breux2020elevation}:
++$[-b/2,\, b/2]$ \citep{johnson1995continuous, breux2020elevation}:
+ \begin{equation}                         % scaled beta pdf
+   p(\theta;\, \alpha, \beta, b) = \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\,\Gamma(\beta)}\,
+   \frac{(\theta + \frac{b}{2})^{\alpha-1}\,(\frac{b}{2} - \theta)^{\beta-1}}{b^{\alpha+\beta-1}},
+diff --git a/report-template/sections/05-msis-scan-merging.tex b/report-template/sections/05-msis-scan-merging.tex
+index 6e7cb8f..2fae725 100644
+--- a/report-template/sections/05-msis-scan-merging.tex
++++ b/report-template/sections/05-msis-scan-merging.tex
+@@ -475,7 +475,7 @@ The resolution of the estimates is therefore $\Delta_\theta = b / n_q$.
+ Each estimated angle $\hat{\theta} \in \hat{\Theta}$ also needs an uncertainty, i.e.\ a probability
+ distribution $p(\hat{\theta})$. A normal distribution is not adapted, as its support is infinite while
+ the angle is restricted to the aperture of the beam. A good choice is the scaled beta distribution
+-\citep{johnson1994continuous} of Eq.~\eqref{eq:def_beta}, defined by two parameters $\alpha$, $\beta$,
++\citep{johnson1995continuous} of Eq.~\eqref{eq:def_beta}, defined by two parameters $\alpha$, $\beta$,
+ \begin{equation}                         % scaled beta distribution of an estimate
+   \hat{\theta} \sim \operatorname{Beta}(\alpha, \beta, \theta_{\min}, \theta_{\max}), \qquad
+   \theta_{\max} = -\theta_{\min} = \frac{b}{2},
+-- 
+2.43.0
+

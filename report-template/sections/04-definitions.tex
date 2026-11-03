@@ -107,12 +107,13 @@ the goal of scan merging.
 
 \begin{figure}[!htbp]                    % frames and the elevation ambiguity
   \centering
-  \figplaceholder[3cm]{(a) The NavScoot~2 with the frames $\{0\}$, $\{B\}$, $\{S_H\}$, $\{S_V\}$
-  and the angles $\rho$, $\theta$, $\psi$. (b) A vertical slice of the conduit: one horizontal
-  sonar ping whose $25^\circ$ beam hits the wall at several points, i.e.\ several echoes with
-  different elevation angles \citep[Figs.~2--4]{breux2020elevation}}
+  \includegraphics[width=0.8\linewidth, height=9cm, keepaspectratio]{figures/frames_used.png}\\[0.2em]
+  {\small (a)}\\[0.8em]
+  \includegraphics[width=0.8\linewidth, height=9cm, keepaspectratio]{figures/several_elevation_angles.png}\\[0.2em]
+  {\small (b)}
   \caption{(a) Frames used in this report. (b) A single horizontal sonar ping can correspond to
-           several 3D points, hence several elevation angles.}
+           several 3D points, hence several elevation angles. Adapted from
+           \citet{breux2020elevation}.}
   \label{fig:def_frames}
 \end{figure}
 
@@ -188,20 +189,20 @@ For $\alpha = \beta = 1$ it reduces to the uniform distribution on the beam, $p 
 only information available on $\theta$ without scan merging.
 
 % ------------------------------------------------------------------------------
-\subsection{Acronyms}                    % abbreviations used in the report
-\label{sec:def_acronyms}                 % \secref{sec:def_acronyms}
+% \subsection{Acronyms}                    % abbreviations used in the report
+% \label{sec:def_acronyms}                 % \secref{sec:def_acronyms}
 
-\begin{table}[!htbp]                     % two (acronym, meaning) column pairs side by side
-  \centering
-  \small
-  \begin{tabular}{ll@{\hspace{2em}}ll}
-    \toprule
-    DVL  & Doppler velocity log                 & MSIS & Mechanically scanned imaging sonar \\
-    GP   & Gaussian process                     & pdf  & Probability density function       \\
-    IMU  & Inertial measurement unit            & RBF  & Radial basis function              \\
-    MLE  & Maximum likelihood estimation        & SLAM & Simultaneous localization and mapping \\
-    \bottomrule
-  \end{tabular}
-  \caption{Acronyms used in this report.}
-  \label{tab:def_acronyms}
-\end{table}
+% \begin{table}[!htbp]                     % two (acronym, meaning) column pairs side by side
+%   \centering
+%   \small
+%   \begin{tabular}{ll@{\hspace{2em}}ll}
+%     \toprule
+%     DVL  & Doppler velocity log                 & MSIS & Mechanically scanned imaging sonar \\
+%     GP   & Gaussian process                     & pdf  & Probability density function       \\
+%     IMU  & Inertial measurement unit            & RBF  & Radial basis function              \\
+%     MLE  & Maximum likelihood estimation        & SLAM & Simultaneous localization and mapping \\
+%     \bottomrule
+%   \end{tabular}
+%   \caption{Acronyms used in this report.}
+%   \label{tab:def_acronyms}
+% \end{table}
