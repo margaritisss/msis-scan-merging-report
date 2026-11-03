@@ -1,0 +1,49 @@
+% ---------------------------------------------------------------- extra packages
+% The class already loads fontenc, babel, geometry, graphicx, tikz, hyperref...
+% Anything else the report needs goes here.
+
+\usepackage{booktabs}            % \toprule, \midrule, \bottomrule for clean tables
+\usepackage{amsmath}             % equation environment, \qquad, math spacing
+\usepackage{amssymb}             % \mathbb{R} and other symbols (affine registration)
+\usepackage{xurl}                % let long URLs break across lines
+\usepackage[round]{natbib}       % \cite{key} -> (Zhang et al., 2023), author-year style
+\bibliographystyle{apalike-nd}   % APA-like layout (local copy of apalike: keeps "n.d." in citations)
+\let\cite\citep                 % \cite{key} -> (Zhang et al., 2023); use \citet for "Zhang et al. (2023)"
+\renewcommand{\bibsection}{%           % reference list heading:
+  \section*{List of References}%        %   never numbered, even when sections are
+  \addcontentsline{toc}{section}{List of References}%  %   but still listed in the table of contents
+  \markboth{List of References}{}}      %   and shown in the page header
+
+% ---- code listings (used in the Registration section)
+\usepackage{listings}            % typeset source code blocks
+\lstset{%
+  language=Python,               % keyword highlighting for Python
+  basicstyle=\ttfamily\small,    % monospaced, slightly smaller than the text
+  keywordstyle=\bfseries,        % keywords in bold
+  stringstyle=\color{black!70},  % strings in dark grey
+  frame=single,                  % thin box around the code
+  framesep=4pt,                  % space between box and code
+  xleftmargin=6pt, xrightmargin=6pt,  % keep the box inside the text width
+  columns=fullflexible,          % natural spacing, copy-paste friendly
+  aboveskip=0.8em, belowskip=0.8em}   % air around each block
+
+% ---- TikZ libraries (used for the registration flowchart)
+\usetikzlibrary{positioning,fit,arrows.meta}  % node placement, grouping boxes, arrow tips
+
+% ---- monospaced font: Latin Modern Mono (vector) when installed, e.g. on Overleaf
+\IfFileExists{t1lmtt.fd}{\renewcommand{\ttdefault}{lmtt}}{}  % otherwise keep the default
+
+\usepackage{placeins}                  % \FloatBarrier: print pending figures before going on
+
+% ---- pseudo-code (used in the MSIS Scan Merging section)
+\usepackage{algorithm}           % floating "Algorithm n" boxes with a caption
+\usepackage{algpseudocode}       % \State, \For, \If, \Comment inside an algorithmic block
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}   % "Input:" instead of "Require:"
+\renewcommand{\algorithmicensure}{\textbf{Output:}}   % "Output:" instead of "Ensure:"
+
+% ---- plots drawn from formulas (threshold plot in the MSIS Scan Merging section)
+\usepackage{pgfplots}            % axis environment and \addplot of functions
+\pgfplotsset{compat=1.18}        % current pgfplots behaviour (installed version 1.18.1)
+\definecolor{vizBlue}{HTML}{2A78D6}    % chart series 1 (validated categorical palette)
+\definecolor{vizOrange}{HTML}{EB6834}  % chart series 2
+\definecolor{vizAqua}{HTML}{1BAF7A}    % chart series 3

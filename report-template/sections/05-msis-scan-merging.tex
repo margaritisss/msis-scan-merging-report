@@ -1,0 +1,821 @@
+\section{MSIS Scan Merging}              % the method implemented in this project
+\label{sec:msis_merging}                 % \secref{sec:msis_merging}
+
+The horizontal sonar of the NavScoot~2 measures the range of every echo but not its elevation
+inside its $25^\circ$ beam (\secref{sec:def_measurements}). A wide beam is nevertheless valuable:
+it covers a large part of the conduit at each rotation, which increases the surface seen by two
+successive $360^\circ$ scans and therefore the chance of recognizing a region already mapped. The
+price is a high uncertainty on the 3D position of each echo \citep{breux2020elevation}. This
+project implements the method of \citet{breux2020elevation} to reduce this uncertainty. Its key
+idea is that both sonars observe the same environment, which is the variable linking their
+measurements. The measurements of the high-resolution, narrow-beam vertical sonar are used to build
+a probabilistic approximation of the surrounding surface by Gaussian process regression; this
+surface is then used to estimate the probability distribution of the elevation angles of the
+low-resolution, wide-beam horizontal sonar. In \citet{margaritis2025internship}, the vertical sonar
+was only used to add points to the reconstructed environment; here it is also used to estimate the
+elevation angles of the horizontal sonar.
+
+The method only considers the trajectory during the acquisition of one complete scan
+(\secref{sec:def_measurements}): the measurements $\mathcal{M}^h$ of one full rotation of the
+horizontal sonar, the measurements $\mathcal{M}^v$ of the vertical sonar during the same interval,
+and the dead-reckoning poses $\mathcal{H} = \{\boldsymbol{\eta}_i\}$, $i \in \{1,\dots,n_r\}$, of
+that interval. The estimation of the full trajectory, for instance in a pose-graph SLAM framework,
+is outside the scope of the method.
+
+% ==============================================================================
+\subsection{Environment model}           % how the conduit wall is parameterized
+\label{sec:msis_model}                   % \secref{sec:msis_model}
+
+The surface of the environment is modelled through \emph{virtual vertical sonar measurements}: a 3D
+point on the surface is parameterized by the 6D pose of the vehicle and the rotation angle of the
+vertical sonar at which this point could have been seen by the vertical sonar. Formally, the surface
+is defined as the function
+\begin{equation}                         % surface as a function of pose and sonar angle
+  f : \left\{
+  \begin{array}{rcl}
+    SE(3) \times [-\pi, \pi] & \to     & \mathbb{R}^+ \\
+    (\boldsymbol{\eta}, \psi^v) & \mapsto & \rho^v
+  \end{array}\right.
+  \label{eq:msis_surface}
+\end{equation}
+which maps a pose $\boldsymbol{\eta}$ and a rotation angle $\psi^v$ to the distance $\rho^v$,
+expressed in the scanning plane of the vertical sonar (the $XY$-plane of $\{S_V\}$), that would have
+been measured from the pose $\boldsymbol{\eta}$ with the rotation angle $\psi^v$. A terrain model of
+the form $z = f(x, y)$, common in seafloor mapping, cannot be used here: in a conduit, $z$ is not a
+function of $(x, y)$, since a vertical line crosses the wall both at the floor and at the roof.
+
+The trajectory of the vehicle is a one-dimensional submanifold of $SE(3)$, so it can be
+parameterized by a single scalar $u \in \mathbb{R}$. Since a kernel measures the similarity of two
+inputs (\secref{sec:def_gp}), this parameter must be such that, for a kernel $K$,
+\begin{equation}                         % requirement on the trajectory parameter
+  K(\boldsymbol{\eta}_1, \boldsymbol{\eta}_2) = K(u_1, u_2).
+  \label{eq:msis_kernelreq}
+\end{equation}
+The time $t$ does not satisfy Eq.~\eqref{eq:msis_kernelreq}: the length scale $l$ of the kernel
+(Eq.~\eqref{eq:def_kernels}) would depend on time and not on space. For instance, a vehicle standing
+still at two instants $t_2 \gg t_1$ has $\boldsymbol{\eta}(t_1) = \boldsymbol{\eta}(t_2)$, so that
+$K(\boldsymbol{\eta}_1, \boldsymbol{\eta}_2) = \sigma_p^2$, whereas $K(t_1, t_2) \approx 0$.
+
+The trajectory is instead parameterized by its \emph{curvilinear abscissa}, i.e.\ its length in
+$SE(3)$. Lengths are measured with the left-invariant Riemannian metric used by
+\citet{breux2020elevation}: for $\mathbf{A} \in SE(3)$ and two tangent vectors
+$\mathbf{U}_1, \mathbf{U}_2 \in T_{\mathbf{A}}SE(3)$,
+\begin{equation}                         % left-invariant metric on SE(3)
+  \langle \mathbf{U}_1, \mathbf{U}_2 \rangle_{\mathbf{A}}
+  = \langle \mathbf{A}^{-1}\mathbf{U}_1, \mathbf{A}^{-1}\mathbf{U}_2 \rangle_e
+  = \operatorname{Tr}(\mathbf{S}_1^T \mathbf{S}_2)
+  = \boldsymbol{\xi}_1^T \mathbf{G}\, \boldsymbol{\xi}_2, \qquad
+  \mathbf{G} = \begin{bmatrix} \mathbf{I}_3 & \mathbf{0} \\ \mathbf{0} & 2\mathbf{I}_3 \end{bmatrix},
+  \label{eq:msis_metric}
+\end{equation}
+where $\mathbf{S}_j = \mathbf{A}^{-1}\mathbf{U}_j \in \mathfrak{se}(3)$ and $\boldsymbol{\xi}_j$ is
+the same element written as a 6-vector $[\mathbf{v}^T\ \boldsymbol{\omega}^T]^T$. The factor $2$ on
+the rotational part comes from the trace:
+$\operatorname{Tr}([\boldsymbol{\omega}]_\times^T[\boldsymbol{\omega}]_\times) = 2\lVert\boldsymbol{\omega}\rVert^2$.
+The length of a curve $\boldsymbol{\eta}(t)$ in $SE(3)$ between two instants $t_1$ and $t_2$ is then
+\begin{equation}                         % length of a curve in SE(3)
+  L_{\boldsymbol{\eta}(t_1)}^{\boldsymbol{\eta}(t_2)} = \int_{t_1}^{t_2}
+  \left\langle \frac{d\boldsymbol{\eta}}{dt}, \frac{d\boldsymbol{\eta}}{dt} \right\rangle_{\boldsymbol{\eta}(t)}^{1/2} dt,
+  \label{eq:msis_length}
+\end{equation}
+and the curvilinear abscissa is the length travelled since the start of the scan,
+\begin{equation}                         % continuous curvilinear abscissa
+  s(t) = L_{\boldsymbol{\eta}(0)}^{\boldsymbol{\eta}(t)}.
+  \label{eq:msis_abscissa_cont}
+\end{equation}
+The trajectory available here is the discrete set $\mathcal{H}$ of poses estimated by dead reckoning
+from the DVL, the IMU and the depth sensor, so the length is approximated by summing the lengths of
+the relative motions between consecutive poses. With $\mathbf{T}_k$ the $4\times4$ matrix of the pose
+$\boldsymbol{\eta}_k$, $s_1 = 0$ and, for $i \in \{2,\dots,n_r\}$,
+\begin{equation}                         % discrete curvilinear abscissa
+  \begin{aligned}
+    s_i = L_{\boldsymbol{\eta}_1}^{\boldsymbol{\eta}_i}
+    &\approx \sum_{k=2}^{i} \langle \Delta\boldsymbol{\eta}_k, \Delta\boldsymbol{\eta}_k \rangle^{1/2}
+     = \sum_{k=2}^{i} \sqrt{\log(\mathbf{T}_{k-1}^{-1}\mathbf{T}_k)^T\, \mathbf{G}\,
+       \log(\mathbf{T}_{k-1}^{-1}\mathbf{T}_k)}
+     = \sum_{k=2}^{i} \big\lVert \log(\mathbf{T}_{k-1}^{-1}\mathbf{T}_k) \big\rVert_G,
+  \end{aligned}
+  \label{eq:msis_abscissa}
+\end{equation}
+where $\mathbf{T}_{k-1}^{-1}\mathbf{T}_k$ is the motion from $\boldsymbol{\eta}_{k-1}$ to
+$\boldsymbol{\eta}_k$ (written $\boldsymbol{\eta}_k \ominus \boldsymbol{\eta}_{k-1}$ by
+\citealt{breux2020elevation}), $\log$ the logarithm map of $SE(3)$ and
+$\lVert\boldsymbol{\xi}\rVert_G = \sqrt{\boldsymbol{\xi}^T\mathbf{G}\,\boldsymbol{\xi}}$. The abscissa
+therefore grows with both the distance travelled and the rotation of the vehicle: a pure rotation
+of 1~rad adds $\sqrt{2}$ to $s$, as much as a translation of $\sqrt{2}$~m.
+
+The objective is then to estimate $f$ by training a Gaussian process on the vertical sonar
+measurements, as a function $f(s, \psi^v)$ of the curvilinear abscissa and the rotation angle. The
+learned function is finally used to estimate the most likely elevation angles $\theta^h_{ij}$ inside
+the beams of the horizontal sonar.
+
+% ==============================================================================
+\subsection{Algorithm description}       % Algorithm 1 and its stages
+\label{sec:msis_algorithm}               % \secref{sec:msis_algorithm}
+
+The algorithm is summarized in Algorithm~\ref{alg:msis_merging} (\secref{sec:msis_pseudocode}). First, the curvilinear abscissa of
+every pose of the trajectory is computed with Eq.~\eqref{eq:msis_abscissa} (lines 1--5). The
+vertical sonar measurements are then placed in the world frame and an elliptic cylinder is fitted to
+them as the surface prior $f_p$ (lines 6--7, \secref{sec:msis_prior}). The Gaussian process
+modelling the surface is trained on the vertical sonar measurements and their curvilinear abscissae
+(lines 8--10, \secref{sec:msis_gp}). Then, for every echo of every horizontal measurement, the most
+likely elevation angles are estimated (line 14, Algorithm~\ref{alg:msis_mle},
+\secref{sec:msis_mle}) and their uncertainties are computed (line 16,
+Algorithm~\ref{alg:msis_uncertainty}, \secref{sec:msis_uncertainty}). Finally, each estimated angle
+turns the echo into a 3D point with a known uncertainty, which is added to the vertical sonar points
+of the scan (line 17). This last step is specific to this project, whose aim is a single point cloud
+combining both sonars; \citet{breux2020elevation} stop at the distributions $p(\hat{\theta})$.
+
+% ------------------------------------------------------------------------------
+\subsubsection{Environment prior}        % elliptic cylinder fitted to the vertical points
+\label{sec:msis_prior}                   % \secref{sec:msis_prior}
+
+The prior $f_p$ is the mean function of the Gaussian process: it encodes what is known of the shape
+of the environment before the regression, so that the process only has to learn how the real
+surface deviates from it. Based on the typical geometry of karst conduits, the natural choice is an
+\emph{elliptic cylinder}. For a pose $\boldsymbol{\eta} = [\boldsymbol{\tau}^T\ \mathbf{q}^T]^T$ on
+the trajectory (equivalently, its curvilinear abscissa) and a rotation angle $\psi^v$,
+$f_p(\boldsymbol{\eta}, \psi^v)$ returns the distance to the prior shape along the corresponding ray
+of the vertical sonar. Let the cylinder have the pose $\mathbf{T}_c = [\mathbf{R}_c\ \boldsymbol{\tau}_c]$,
+with its axis along the $z$-axis of its frame and the semi-axes $r_1$ and $r_2$ of its elliptic
+section along the $x$- and $y$-axes. The ray starts at the sonar head
+$\mathbf{o} = \boldsymbol{\tau} + \mathbf{R}(\mathbf{q})\boldsymbol{\tau}_V$ with the unit direction
+$\mathbf{u} = \mathbf{R}(\mathbf{q})\mathbf{R}(\mathbf{q}_V)[\cos\psi^v\ \ \sin\psi^v\ \ 0]^T$.
+Expressed in the frame of the cylinder, $\mathbf{o}' = \mathbf{R}_c^T(\mathbf{o} - \boldsymbol{\tau}_c)$
+and $\mathbf{u}' = \mathbf{R}_c^T\mathbf{u}$, and $f_p(\boldsymbol{\eta}, \psi^v)$ is the smallest
+positive root $\lambda$ of the polynomial equation of degree two
+\begin{equation}                         % ray-cylinder intersection
+  \left(\frac{o'_x + \lambda u'_x}{r_1}\right)^2 + \left(\frac{o'_y + \lambda u'_y}{r_2}\right)^2 = 1.
+  \label{eq:msis_prior}
+\end{equation}
+
+Fitting this primitive to the vertical sonar points
+$\mathcal{P}^v = \{\mathbf{p}_k = g^v(\rho^v_k, 0, \psi^v_k, k)\}$ is a non-linear optimization,
+which, like any such optimization, needs a good initial shape. It is done in three steps
+\citep{breux2020elevation}:
+\begin{enumerate}                        % fitting steps
+  \item \textbf{Initial axes.} A robust principal component analysis (RPCA) of $\mathcal{P}^v$ gives
+        its centre $\mathbf{c}$ and three principal vectors $\mathbf{a}_1$, $\mathbf{a}_2$,
+        $\mathbf{a}_3$. For a perfect elliptic cylinder, they correspond to the cylinder axis and the
+        major and minor axes of the ellipse. If the cylinder were longer than wide, its axis would be
+        the principal vector with the largest eigenvalue, but this cannot be assumed here, since one
+        scan covers a short portion of conduit. The axis is instead found from tangent vectors:
+        successive points of the vertical sonar lie on the same cross-section of the conduit, so the
+        vector $\mathbf{t}_k = \mathbf{p}_{k+1} - \mathbf{p}_k$ approximates a tangent to the wall that
+        is orthogonal to the axis, and its projection on the axis is minimal:
+        \begin{equation}                 % choice of the cylinder axis
+          \mathbf{a}_{\mathrm{axis}} = \arg\min_{\mathbf{a} \in \{\mathbf{a}_1, \mathbf{a}_2, \mathbf{a}_3\}}
+          \sum_{k} \langle \mathbf{a}, \mathbf{t}_k \rangle^2.
+          \label{eq:msis_axis_pca}
+        \end{equation}
+  \item \textbf{Elliptic section.} The points are projected on the plane spanned by the two other
+        principal vectors, and an ellipse is fitted to these 2D projections. The PCA basis is then
+        rotated around the cylinder axis to align it with the axes of the ellipse, which gives the
+        initial pose $\mathbf{T}_c$ and semi-axes $r_1$, $r_2$.
+  \item \textbf{Refinement.} The asymmetric distribution of the vertical sonar points has a large
+        influence on the RPCA result (Figure~\ref{fig:msis_prior}). The cylinder is therefore refined
+        with the Levenberg--Marquardt (LM) algorithm, which finds the shape minimizing the orthogonal
+        distances $d_\perp$ of the points to the cylinder:
+        \begin{equation}                 % orthogonal least squares
+          \hat{\mathbf{x}} = \arg\min_{\mathbf{x} \in \mathbb{R}^8}\ \sum_{k=1}^{n_v} d_\perp(\mathbf{p}_k, \mathbf{x})^2,
+          \label{eq:msis_lm}
+        \end{equation}
+        where $\mathbf{x}$ gathers the 6D pose $\mathbf{T}_c \in SE(3)$ of the cylinder and its two
+        semi-axes. The pose is optimized on the manifold $SE(3)$ \citep{blanco2010tutorial}: each LM
+        step computes an increment in $\mathfrak{se}(3)$, which is mapped back onto $SE(3)$ by the
+        exponential map.
+\end{enumerate}
+
+\begin{figure}[!htb]                     % elliptic cylinder prior
+  \centering
+  \figplaceholder[3cm]{Vertical sonar points of one scan with the fitted elliptic cylinder: (a) top
+  view, (b) side view; initial shape from the RPCA and final shape after Levenberg--Marquardt
+  refinement (own data, or adapted from Fig.~5 of \citealt{breux2020elevation})}
+  \caption{Elliptic cylinder prior fitted to the vertical sonar points of one scan: RPCA
+           initialization and Levenberg--Marquardt result.}
+  \label{fig:msis_prior}
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\subsubsection{Gaussian process regression and kernel choices}  % training the surface model
+\label{sec:msis_gp}                                              % \secref{sec:msis_gp}
+
+Each vertical measurement $\mathbf{m}^v_k$ provides one training input, the abscissa of its pose and
+its rotation angle $\mathbf{x}_k = [s_{\sigma^v(k)}\ \ \psi^v_k]^T$, and one output, its range
+$\rho^v_k$. They form the training set $\mathbf{X} = [\mathbf{x}_1 \dots \mathbf{x}_{n_v}]$,
+$\mathbf{y} = [\rho^v_1 \dots \rho^v_{n_v}]^T$ of the Gaussian process
+$f \sim \mathcal{GP}(f_p, K)$ of Eq.~\eqref{eq:def_gp_model}. The kernel exploits the cylindrical
+structure of the surface by combining a kernel on the trajectory abscissa and a kernel on the
+rotation angle:
+\begin{equation}                         % product kernel
+  K_{\mathrm{prod}}\big([s\ \psi^v]^T, [s'\ \psi'^v]^T\big) = K_s(s, s')\, K_\psi(\psi^v, \psi'^v).
+  \label{eq:msis_kernel}
+\end{equation}
+$K_s$ can be any kernel of \secref{sec:def_gp}, or the Mat\'ern 5/2 kernel
+\citep{rasmussen2006gaussian}
+\begin{equation}                         % Matern 5/2 kernel
+  K^M_{5/2}(\mathbf{x}, \mathbf{x}') = \sigma_p^2 \left(1 + \frac{\sqrt{5}\,r}{l} + \frac{5r^2}{3l^2}\right)
+  e^{-\frac{\sqrt{5}\,r}{l}}, \qquad r = \lVert \mathbf{x} - \mathbf{x}' \rVert.
+  \label{eq:msis_matern52}
+\end{equation}
+For $K_\psi$, a simple Euclidean distance cannot be used, since the angle is periodic ($-\pi$ and
+$\pi$ are the same direction), and the distance chosen must keep the kernel positive definite. Two
+distances on the circle $\mathbb{S}^1$ can be defined, the chordal and the geodesic distances:
+\begin{align}                            % distances between two angles
+  d_{\mathrm{chord}}(\psi, \psi') &= 2\left|\sin\frac{\psi - \psi'}{2}\right|,  \label{eq:msis_chordal}\\
+  d_{\mathrm{geo}}(\psi, \psi')   &= \arccos\big(\cos(\psi - \psi')\big).        \label{eq:msis_geodesic}
+\end{align}
+The chordal distance is the Euclidean distance between the points $(\cos\psi, \sin\psi)$ and
+$(\cos\psi', \sin\psi')$ of the unit circle, so any kernel remains valid with it. With the geodesic
+distance only some kernels do; for instance, a $C^2$-Wendland function defines a valid kernel:
+\begin{equation}                         % Wendland function for the geodesic distance
+  W_\pi(t) = \left(1 + \tau\frac{t}{\pi}\right)\left(1 - \frac{t}{\pi}\right)_+^{\tau},
+  \qquad 0 \leq t \leq \pi, \quad \tau \geq 4,
+  \label{eq:msis_wendland}
+\end{equation}
+where $(x)_+ = \max(x, 0)$. \citet{breux2020elevation} only consider the exponential and Mat\'ern 5/2
+kernels with the chordal distance for $K_\psi$, i.e.\
+$K_\psi(\psi, \psi') = K\big(d_{\mathrm{chord}}(\psi, \psi')\big)$, and compare the exponential,
+Mat\'ern 3/2, Mat\'ern 5/2 and RBF kernels for $K_s$. In their simulations, the best $K_s$ depended on
+the configuration; for $K_\psi$, the exponential kernel gave smaller uncertainties than the unknown
+environment requires and unrealistic learned length scales, while
+$K^M_{5/2} \circ d_{\mathrm{chord}}$ gave appropriate ones. The pair $K_s = K^M_{5/2}$,
+$K_\psi = K^M_{5/2} \circ d_{\mathrm{chord}}$ was retained as a reasonable choice. A good kernel
+trades confidence against accuracy: the variance must be large enough for the confidence interval
+to contain the real surface, but too large a variance leads to uniform distributions of the
+elevation angles. Since the surface is estimated per scan, the kernels can also be adapted during
+the exploration according to prior knowledge of the environment.
+
+The product kernel has one signal variance $\sigma_p^2$ and two length scales, $l_s$ along the
+trajectory and $l_\psi$ on the angle. These hyperparameters and the noise variance $\sigma_n^2$ can be
+set manually or estimated by maximum likelihood on the training set, by maximizing the log marginal
+likelihood \citep{rasmussen2006gaussian}
+\begin{equation}                         % log marginal likelihood
+  \ln p(\mathbf{y} \mid \mathbf{X}) = -\frac{1}{2}\big(\mathbf{y} - f_p(\mathbf{X})\big)^T
+  (\mathbf{K} + \sigma_n^2\mathbf{I})^{-1}\big(\mathbf{y} - f_p(\mathbf{X})\big)
+  - \frac{1}{2}\ln\big|\mathbf{K} + \sigma_n^2\mathbf{I}\big| - \frac{n_v}{2}\ln 2\pi.
+  \label{eq:msis_marglik}
+\end{equation}
+The standard regression uses all training inputs and treats them as noise-free. Since the surface is
+only modelled locally, from the vertical measurements of one scan, the training set is small and a
+sparse formulation of the Gaussian process is not needed. However, the dead-reckoning drift
+accumulated during the scan makes the inputs uncertain, and taking this input uncertainty into
+account could significantly improve the estimation; as in \citet{breux2020elevation}, the inputs are
+assumed noise-free here.
+
+% ------------------------------------------------------------------------------
+\subsubsection{Maximum likelihood estimation of the elevation angle}  % search inside the beam
+\label{sec:msis_mle}                                                  % \secref{sec:msis_mle}
+
+The 3D points observed by the horizontal sonar cannot be obtained directly, since any point in its
+beam may return the same measurement. The surface estimated from the vertical sonar is exploited to
+infer the elevation angle of each horizontal measurement: elevation angles whose 3D points lie close
+to the estimated surface are good estimates (Figure~\ref{fig:msis_mle}). For a horizontal measurement
+$(\psi^h_k, \rho^h_k)$ (one echo of $\mathbf{M}^h_k$), the elevation angle is the solution of
+\begin{equation}                         % maximum likelihood elevation
+  \hat{\theta} = \arg\max_{\theta \in \Theta_H} p\big(\hat{\rho}^v \mid f, \psi^h_k, \rho^h_k,
+  \boldsymbol{\eta}_{\sigma^h(k)}, \theta\big)
+  = \arg\max_{\theta \in \Theta_H} \ln p\big(\hat{\rho}^v \mid f, \psi^h_k, \rho^h_k,
+  \boldsymbol{\eta}_{\sigma^h(k)}, \theta\big)
+  = \arg\max_{\theta \in \Theta_H} J(\theta; \psi^h_k, \rho^h_k),
+  \label{eq:msis_argmax}
+\end{equation}
+where $\hat{\rho}^v$ is the range that would have been obtained if this point had been observed by
+the vertical sonar. Depending on the environment, several angles can correspond to one measurement
+(Figure~\ref{fig:def_frames}b). Instead of the single solution of Eq.~\eqref{eq:msis_argmax}, the
+set of local maxima of the log-likelihood is searched:
+\begin{equation}                         % set of local maxima
+  \hat{\Theta} = \left\{ \hat{\theta} \in \Theta_H \ \middle|\ \frac{\partial J}{\partial\theta}(\hat{\theta}) = 0
+  \ \text{and}\ \frac{\partial^2 J}{\partial\theta^2}(\hat{\theta}) < 0 \right\}.
+  \label{eq:msis_localmax}
+\end{equation}
+Since a closed-form expression of the likelihood with respect to $\theta$ is difficult to obtain, the
+range $\Theta_H = [-b/2,\, b/2]$, with $b = 25^\circ$ the vertical aperture of the Ping360, is
+sampled uniformly with $n_q$ values $\theta_q = -b/2 + q\,\Delta_\theta$, $q \in \{1,\dots,n_q\}$,
+$\Delta_\theta = b / n_q$. Each sample gives the virtual 3D point
+\begin{equation}                         % candidate point of a sample
+  \mathbf{x}(\theta_q) = g^h(\rho^h_k, \theta_q, \psi^h_k, k)
+  = \boldsymbol{\eta}_{\sigma^h(k)} \oplus \mathbf{p}_H \oplus
+  \begin{bmatrix} \rho^h_k\cos\theta_q\cos\psi^h_k \\ \rho^h_k\cos\theta_q\sin\psi^h_k \\ \rho^h_k\sin\theta_q \end{bmatrix}.
+  \label{eq:msis_candidate}
+\end{equation}
+To assess the likelihood that this point lies on the surface, it must be expressed with the inputs
+and output of $f$: the curvilinear abscissa $\hat{s}_q$, the rotation angle $\hat{\psi}^v_q$ and the
+range $\hat{\rho}^v_q$ under which the vertical sonar would have seen it
+(Figure~\ref{fig:msis_virtual}). This takes the five steps below, detailed in
+Algorithm~\ref{alg:msis_mle} (\secref{sec:msis_pseudocode}).
+
+\begin{figure}[!htb]                     % principle of the elevation search
+  \centering
+  \figplaceholder[3cm]{Vertical slice of the conduit: estimated surface (GP mean) with its
+  $\pm3\sigma$ band, the horizontal sonar beam of aperture $\Theta_H$ and, on both sides, the likelihood
+  $p(\rho \mid \theta)$ along the measured arcs, with two local maxima $\theta_{i,1}$, $\theta_{i,2}$
+  on one side (own figure, or adapted from Fig.~6 of \citealt{breux2020elevation})}
+  \caption{Principle of the elevation angle estimation on a vertical slice: the elevations whose
+           points fall on the estimated surface are the most likely.}
+  \label{fig:msis_mle}
+\end{figure}
+
+\paragraph{1. Selection of the trajectory segments.} Let $\mathbf{n}^v|_{\{S_V\}}$ be the rotation
+axis of the vertical sonar expressed in its own frame, which is also the normal of its scanning
+plane; since that plane is the $XY$-plane of $\{S_V\}$, $\mathbf{n}^v|_{\{S_V\}} = [0\ 0\ 1]^T$. A pose
+$\hat{\boldsymbol{\eta}}_q$ is searched along the trajectory such that $\mathbf{x}(\theta_q)$ belongs
+to the vertical sonar plane, which requires interpolating the trajectory. The first step is to
+determine the segments of the trajectory that may contain $\hat{\boldsymbol{\eta}}_q$; several
+segments can be found. At the $i$-th pose, the rotation axis expressed in the world frame is
+\begin{equation}                         % rotation axis of the vertical sonar in {0}
+  \mathbf{n}^v|_{\{0\},i} = \mathbf{R}(\mathbf{q}_i)\, \mathbf{R}(\mathbf{q}_V)\, \mathbf{n}^v|_{\{S_V\}},
+  \label{eq:msis_axis}
+\end{equation}
+and the plane passes through the sonar head, at
+$\boldsymbol{\tau}^V_i = \boldsymbol{\tau}_i + \mathbf{R}(\mathbf{q}_i)\boldsymbol{\tau}_V$.
+\citet{breux2020elevation} measure the distance to the plane from the vehicle origin
+$\boldsymbol{\tau}_i$; measuring it from the sonar head matters on the NavScoot~2, whose vertical sonar
+is mounted $0.45$~m ahead of the origin, along the normal of its plane
+\citep{margaritis2025internship}. A segment $[i, i+1]$ is selected if the projection of
+$\mathbf{x}(\theta_q) - \boldsymbol{\tau}^V$ on the rotation axis changes sign between the beginning
+and the end of the segment (Figure~\ref{fig:msis_segments}): by the intermediate value theorem, the
+segment then contains a pose for which the projection is zero. The set of starting indices is
+\begin{equation}                         % segments crossing the plane
+  I_q = \Big\{ i \ \Big|\ \big\langle \mathbf{n}^v|_{\{0\},i},\, \mathbf{x}(\theta_q) - \boldsymbol{\tau}^V_i \big\rangle
+  \big\langle \mathbf{n}^v|_{\{0\},i+1},\, \mathbf{x}(\theta_q) - \boldsymbol{\tau}^V_{i+1} \big\rangle < 0 \Big\}.
+  \label{eq:msis_segments}
+\end{equation}
+
+\paragraph{2. Interpolation of the pose.} For each selected segment, $\boldsymbol{\eta}_{[i,i+1]} :
+[0, 1] \to SE(3)$ denotes the linear interpolation between the poses $\boldsymbol{\eta}_i$ and
+$\boldsymbol{\eta}_{i+1}$. Its position is
+\begin{equation}                         % interpolated position
+  \boldsymbol{\tau}_{[i,i+1]}(t) = (\boldsymbol{\tau}_{i+1} - \boldsymbol{\tau}_i)\, t + \boldsymbol{\tau}_i.
+  \label{eq:msis_interp_pos}
+\end{equation}
+For the orientation, the relative rotation between the two poses is expressed by its yaw, pitch and
+roll Euler angles,
+\begin{equation}                         % relative rotation between consecutive poses
+  [\delta\psi\ \ \delta\chi\ \ \delta\phi]^T = \operatorname{Euler}\big(\mathbf{R}(\mathbf{q}_i)^T \mathbf{R}(\mathbf{q}_{i+1})\big),
+  \label{eq:msis_euler}
+\end{equation}
+which is the rotational part of $\boldsymbol{\eta}_{i+1} \ominus \boldsymbol{\eta}_i$. The interpolated
+rotation, the global rotation and the interpolated rotation axis of the vertical sonar are
+\begin{align}                            % interpolated rotation and axis
+  \delta\mathbf{R}(t) &= \mathbf{R}(\delta\psi\, t, \delta\chi\, t, \delta\phi\, t),                 \label{eq:msis_deltaR}\\
+  \mathbf{R}(t)       &= \mathbf{R}(\mathbf{q}_i)\, \delta\mathbf{R}(t),                              \label{eq:msis_Rt}\\
+  \mathbf{n}^v|_{\{0\},[i,i+1]}(t) &= \mathbf{R}(t)\, \mathbf{R}(\mathbf{q}_V)\, \mathbf{n}^v|_{\{S_V\}}, \label{eq:msis_axis_t}
+\end{align}
+and the interpolated sonar head is
+$\boldsymbol{\tau}^V_{[i,i+1]}(t) = \boldsymbol{\tau}_{[i,i+1]}(t) + \mathbf{R}(t)\boldsymbol{\tau}_V$.
+The interpolation value $\hat{t}$ is the one for which $\mathbf{x}(\theta_q)$ belongs to the sonar
+plane of normal $\mathbf{n}^v|_{\{0\},[i,i+1]}(\hat{t})$:
+\begin{equation}                         % crossing condition
+  \big\langle \mathbf{n}^v|_{\{0\},[i,i+1]}(\hat{t}),\ \mathbf{x}(\theta_q) - \boldsymbol{\tau}^V_{[i,i+1]}(\hat{t}) \big\rangle = 0.
+  \label{eq:msis_plane}
+\end{equation}
+Assuming small angle variations between consecutive poses, $\delta\mathbf{R}$ is approximated to the
+first order:
+\begin{equation}                         % first-order rotation
+  \delta\mathbf{R}(t) \approx
+  \begin{bmatrix} 1 & -\delta\psi\, t & \delta\chi\, t \\ \delta\psi\, t & 1 & -\delta\phi\, t \\ -\delta\chi\, t & \delta\phi\, t & 1 \end{bmatrix}
+  = \mathbf{I}_3 + t\,[\delta\boldsymbol{\omega}]_\times, \qquad
+  \delta\boldsymbol{\omega} = [\delta\phi\ \ \delta\chi\ \ \delta\psi]^T.
+  \label{eq:msis_firstorder}
+\end{equation}
+Written in the frame of the vertical sonar, i.e.\ as the coordinate of $\mathbf{x}(\theta_q)$ along
+$\mathbf{n}^v|_{\{S_V\}}$ in $\{S_V\}$, Eq.~\eqref{eq:msis_plane} then becomes a polynomial equation
+of degree two in $\hat{t}$:
+\begin{equation}                         % crossing condition as a quadratic
+  \mathbf{n}^{v}|_{\{S_V\}}^T\, \mathbf{R}(\mathbf{q}_V)^T \Big( \delta\mathbf{R}(\hat{t})^T\,
+  \mathbf{R}(\mathbf{q}_i)^T \big( (\boldsymbol{\tau}_i - \boldsymbol{\tau}_{i+1})\, \hat{t} + \mathbf{x}(\theta_q) -
+  \boldsymbol{\tau}_i \big) - \boldsymbol{\tau}_V \Big) = 0.
+  \label{eq:msis_quadratic}
+\end{equation}
+With $\mathbf{m} = \mathbf{R}(\mathbf{q}_V)\mathbf{n}^v|_{\{S_V\}}$ the axis in the body frame,
+$\mathbf{a} = \mathbf{R}(\mathbf{q}_i)^T(\mathbf{x}(\theta_q) - \boldsymbol{\tau}_i)$ and
+$\mathbf{d} = \mathbf{R}(\mathbf{q}_i)^T(\boldsymbol{\tau}_{i+1} - \boldsymbol{\tau}_i)$, its coefficients
+are
+\begin{equation}                         % coefficients of the quadratic
+  c_2 \hat{t}^2 + c_1 \hat{t} + c_0 = 0, \qquad
+  c_2 = \mathbf{m}^T [\delta\boldsymbol{\omega}]_\times \mathbf{d}, \quad
+  c_1 = -\mathbf{m}^T \big(\mathbf{d} + [\delta\boldsymbol{\omega}]_\times \mathbf{a}\big), \quad
+  c_0 = \mathbf{m}^T (\mathbf{a} - \boldsymbol{\tau}_V).
+  \label{eq:msis_coeffs}
+\end{equation}
+$c_0$ is the signed distance to the plane at $\boldsymbol{\eta}_i$ and $c_2$ is small, being the
+product of the rotation increment and the displacement, so the equation has a single root in
+$[0, 1]$ (it is linear if $c_2 = 0$). The interpolated pose
+$\hat{\boldsymbol{\eta}}_q = \boldsymbol{\eta}_{[i,i+1]}(\hat{t})$ uses the exact rotation of
+Eqs.~\eqref{eq:msis_deltaR}--\eqref{eq:msis_Rt}; the first-order approximation only serves to find
+$\hat{t}$.
+
+\begin{figure}[!htb]                     % geometry of the virtual vertical measurement
+  \centering
+  \figplaceholder[3cm]{3D view of the trajectory during one scan: the horizontal sonar measures a
+  point $\mathbf{x}(\theta_q)$ of the surface $\Omega$ at $\boldsymbol{\eta}_k$; the interpolated pose
+  $\hat{\boldsymbol{\eta}}_q$ with abscissa $\hat{s}_q$ and its virtual vertical sonar plane containing
+  $\mathbf{x}(\theta_q)$, with the angle $\hat{\psi}^v_q$ (adapted from Fig.~7 of
+  \citealt{breux2020elevation})}
+  \caption{Virtual vertical measurement of a candidate point seen by the horizontal sonar.}
+  \label{fig:msis_virtual}
+\end{figure}
+
+\begin{figure}[!htb]                     % segment selection
+  \centering
+  \figplaceholder[3cm]{Top view: the vertical sonar planes and rotation axes
+  $\mathbf{n}^v|_{\{0\},i}$ along the trajectory, the candidate point $\mathbf{x}(\theta_q)$, the
+  projections of $\mathbf{x}(\theta_q) - \boldsymbol{\tau}^V$ on the axes at the two ends of the selected
+  segment (opposite signs) and the interpolated position $\hat{\boldsymbol{\tau}}_q$ (adapted from
+  Fig.~8 of \citealt{breux2020elevation})}
+  \caption{Selection of the trajectory segment containing the pose of the virtual measurement.}
+  \label{fig:msis_segments}
+\end{figure}
+
+\paragraph{3. Virtual vertical measurement.} The curvilinear abscissa corresponding to $\hat{t}$ is
+\begin{equation}                         % abscissa of the virtual measurement
+  \hat{s}_q = s_i + L_{\boldsymbol{\eta}_i}^{\hat{\boldsymbol{\eta}}_q}
+            = s_i + \big\lVert \log(\mathbf{T}_i^{-1}\hat{\mathbf{T}}_q) \big\rVert_G,
+  \label{eq:msis_shat}
+\end{equation}
+with $\hat{\mathbf{T}}_q$ the matrix of $\hat{\boldsymbol{\eta}}_q$. To compute $\hat{\psi}^v_q$,
+$\mathbf{x}(\theta_q)$ is expressed in the frame of the vertical sonar at the pose
+$\hat{\boldsymbol{\eta}}_q$, where its third coordinate is zero by construction of $\hat{t}$:
+\begin{align}                            % virtual vertical measurement
+  \hat{\mathbf{x}}(\theta_q)|_{\{S_V\}} &= \mathbf{x}(\theta_q) \ominus (\hat{\boldsymbol{\eta}}_q \oplus \mathbf{p}_V)
+                                        = [\hat{x}^v\ \ \hat{y}^v\ \ 0]^T,                  \label{eq:msis_xhat}\\
+  \hat{\psi}^v_q &= \operatorname{atan2}(\hat{y}^v, \hat{x}^v),                             \label{eq:msis_psihat}\\
+  \hat{\rho}^v_q &= \big\lVert \hat{\mathbf{x}}(\theta_q)|_{\{S_V\}} \big\rVert_2.          \label{eq:msis_rhohat}
+\end{align}
+
+\paragraph{4. Log-likelihood.} The Gaussian process trained to estimate $f$ predicts, at the input
+$(\hat{s}_q, \hat{\psi}^v_q)$ and with the prior $f_p(\hat{\boldsymbol{\eta}}_q, \hat{\psi}^v_q)$, the
+range (Eqs.~\eqref{eq:def_gp_mean}--\eqref{eq:def_gp_var}, \citealt[Eqs.~2.25--2.26]{rasmussen2006gaussian})
+\begin{equation}                         % GP prediction at the virtual input
+  \rho^{*}_q \sim \mathcal{N}\big(\bar{\rho}^{*}_q, \sigma^{*2}_q\big),
+  \label{eq:msis_gppred}
+\end{equation}
+and the log-likelihood of the virtual range is
+\begin{equation}                         % Gaussian log-likelihood
+  J(\theta_q; \psi^h_k, \rho^h_k) = \ln p\big(\hat{\rho}^v_q \mid f, \psi^h_k, \rho^h_k,
+  \boldsymbol{\eta}_{\sigma^h(k)}, \theta_q\big)
+  = -\left( \frac{(\bar{\rho}^{*}_q - \hat{\rho}^v_q)^2}{2\sigma^{*2}_q} + \ln \sigma^{*}_q + \frac{\ln(2\pi)}{2} \right).
+  \label{eq:msis_loglik}
+\end{equation}
+If the trajectory crosses the plane in several segments, the most likely crossing is kept. If no
+segment is found, $\mathbf{x}(\theta_q)$ lies outside the part of the conduit swept by the vertical
+sonar during the scan: the sample gets $J = -\infty$ and cannot be a maximum.
+
+\paragraph{5. Local maxima.} Eq.~\eqref{eq:msis_localmax} is evaluated on the samples: $\theta_{q-1}$
+is kept when its log-likelihood is larger than those of its two neighbours $\theta_{q-2}$ and
+$\theta_q$, which approximates $\partial J / \partial\theta = 0$ and $\partial^2 J / \partial\theta^2 < 0$.
+The resolution of the estimates is therefore $\Delta_\theta = b / n_q$.
+
+% ------------------------------------------------------------------------------
+\FloatBarrier                            % print the figures of 4.2.3 before 4.2.4 starts
+\subsubsection{Estimation uncertainty}   % scaled beta distribution of each estimate
+\label{sec:msis_uncertainty}             % \secref{sec:msis_uncertainty}
+
+Each estimated angle $\hat{\theta} \in \hat{\Theta}$ also needs an uncertainty, i.e.\ a probability
+distribution $p(\hat{\theta})$. A normal distribution is not adapted, as its support is infinite while
+the angle is restricted to the aperture of the beam. A good choice is the scaled beta distribution
+\citep{johnson1994continuous} of Eq.~\eqref{eq:def_beta}, defined by two parameters $\alpha$, $\beta$,
+\begin{equation}                         % scaled beta distribution of an estimate
+  \hat{\theta} \sim \operatorname{Beta}(\alpha, \beta, \theta_{\min}, \theta_{\max}), \qquad
+  \theta_{\max} = -\theta_{\min} = \frac{b}{2},
+  \label{eq:msis_beta}
+\end{equation}
+whose density involves the gamma function of Eq.~\eqref{eq:def_gamma} and whose parameters follow
+from a mean $\bar{\theta}$ and a variance $\sigma_\theta^2$ through Eq.~\eqref{eq:def_beta_params}. The
+mean is simply the estimate, $\bar{\theta} = \hat{\theta}$. The variance is estimated as the inverse of
+the Fisher information $\mathcal{I}(\bar{\theta})$:
+\begin{equation}                         % variance from the Fisher information
+  \sigma_\theta^2 = \frac{1}{\mathcal{I}(\bar{\theta})}, \qquad
+  \mathcal{I}(\theta) = -\mathbb{E}\!\left[\frac{\partial^2 \ln p(\rho^v \mid \theta)}{\partial\theta^2} \,\middle|\, \theta\right]
+  = -\int \frac{\partial^2 \ln p(\rho^v \mid \theta)}{\partial\theta^2}\, p(\rho^v \mid \theta)\, d\rho^v.
+  \label{eq:msis_fisher}
+\end{equation}
+The likelihood is the Gaussian prediction of the process at the virtual input of $\theta$,
+$p(\rho^v \mid \theta) = \mathcal{N}\big(\bar{\rho}(\theta), \sigma_\rho^2(\theta)\big)$, with
+$\bar{\rho} = \bar{\rho}^{*}$ and $\sigma_\rho = \sigma^{*}$ of Eq.~\eqref{eq:msis_gppred}. Direct
+computation of Eq.~\eqref{eq:msis_fisher} then gives
+\begin{equation}                         % closed-form variance
+  \sigma_\theta^2 = \frac{\sigma_\rho^2(\bar{\theta})}
+  {2\left(\left.\dfrac{\partial\sigma_\rho}{\partial\theta}\right|_{\bar{\theta}}\right)^2
+   + \left(\left.\dfrac{\partial\bar{\rho}}{\partial\theta}\right|_{\bar{\theta}}\right)^2}.
+  \label{eq:msis_sigmatheta}
+\end{equation}
+An angle is therefore well determined when a small change of $\theta$ moves the predicted range or
+its uncertainty by much more than that uncertainty.
+
+\paragraph{Derivation of the Fisher information.} Following Appendix~A of \citet{breux2020elevation},
+write $\bar{\rho}$, $\sigma$ for $\bar{\rho}(\theta)$, $\sigma_\rho(\theta)$, primes for derivatives with
+respect to $\theta$, and $u = \rho^v - \bar{\rho}$. The negative log-likelihood and its first two
+derivatives are
+\begin{align}                            % derivation of the Fisher information
+  -\ln p(\rho^v \mid \theta) &= \ln\sigma + \frac{\ln 2\pi}{2} + \frac{u^2}{2\sigma^2},              \label{eq:msis_A1}\\
+  -\frac{\partial \ln p(\rho^v \mid \theta)}{\partial\theta}
+    &= \frac{\sigma'}{\sigma} - \frac{u\,\bar{\rho}'}{\sigma^2} - \frac{u^2\sigma'}{\sigma^3},        \label{eq:msis_A2}\\
+  -\frac{\partial^2 \ln p(\rho^v \mid \theta)}{\partial\theta^2}
+    &= \frac{\sigma\sigma'' - \sigma'^2}{\sigma^2} + \frac{\bar{\rho}'^2}{\sigma^2} - \frac{u\,\bar{\rho}''}{\sigma^2}
+       + \frac{4u\,\bar{\rho}'\sigma'}{\sigma^3} - \frac{u^2(\sigma\sigma'' - 3\sigma'^2)}{\sigma^4}.   \label{eq:msis_A3}
+\end{align}
+Taking the expectation with $\mathbb{E}[u] = 0$ and $\mathbb{E}[u^2] = \sigma^2$, the terms in $\sigma''$
+cancel and
+\begin{equation}                         % Fisher information of a Gaussian likelihood
+  \mathcal{I}(\theta) = \frac{2\sigma'^2 + \bar{\rho}'^2}{\sigma^2},
+  \label{eq:msis_A5}
+\end{equation}
+which is Eq.~\eqref{eq:msis_sigmatheta}. In practice the derivatives are evaluated by central finite
+differences on the samples $\theta_q$ of Algorithm~\ref{alg:msis_mle} (one-sided differences when a
+neighbouring sample has no crossing). When both sonars are at the same place, as in Fig.~6 of
+\citet{breux2020elevation}, the virtual range $\hat{\rho}^v$ does not depend on $\theta$. On the
+NavScoot~2 the two sonars are about $0.3$~m apart, so $\hat{\rho}^v$ varies slightly with $\theta$;
+using the derivative of the residual $\bar{\rho}^{*} - \hat{\rho}^v$ in place of $\bar{\rho}'$ accounts
+for this.
+
+\paragraph{Validity thresholds.} A uniform distribution is still a beta distribution, with
+$\alpha = \beta = 1$: from Eqs.~\eqref{eq:def_beta} and \eqref{eq:def_gamma},
+\begin{equation}                         % uniform as a beta distribution
+  p(\theta; 1, 1, b) = \frac{\Gamma(2)}{b\,\Gamma(1)\,\Gamma(1)} = \frac{1}{b},
+  \label{eq:msis_uniform}
+\end{equation}
+the density of the uniform distribution on $[-b/2,\, b/2]$. A threshold $\sigma_l$ is defined to filter
+out the variances $\sigma_\theta$ that lead to invalid beta parameters. First, $\alpha$ and $\beta$ must
+be strictly positive:
+\begin{equation}                         % positivity of the parameters
+  \alpha > 0,\ \beta > 0 \iff \sigma_\theta^2 < \left(\frac{b}{2}\right)^2 - \bar{\theta}^2.
+  \label{eq:msis_valid}
+\end{equation}
+Furthermore, each distribution is assumed unimodal, so $\alpha \geq 1$ or $\beta \geq 1$: if
+$\alpha, \beta < 1$, the distribution is U-shaped, with its modes at the edges $\pm b/2$ of the beam.
+From Eq.~\eqref{eq:def_beta_params},
+\begin{align}                            % unimodality conditions
+  \alpha \geq 1 &\iff \sigma_\theta^2 \leq A(\bar{\theta}) = \frac{(b + 2\bar{\theta})^2 (b - 2\bar{\theta})}{4(3b + 2\bar{\theta})}, \label{eq:msis_alpha1}\\
+  \beta \geq 1  &\iff \sigma_\theta^2 \leq B(\bar{\theta}) = A(-\bar{\theta}),                                                   \label{eq:msis_beta1}
+\end{align}
+which implies
+\begin{equation}                         % unimodality threshold
+  \sigma_\theta^2 \leq \sigma_l^2(\bar{\theta}) = \max\big(A(\bar{\theta}), A(-\bar{\theta})\big) = A(|\bar{\theta}|).
+  \label{eq:msis_sigmal}
+\end{equation}
+The first constraint is included in the second, since
+$A(|\bar{\theta}|) = \big((b/2)^2 - \bar{\theta}^2\big)\,(b + 2|\bar{\theta}|)/(3b + 2|\bar{\theta}|)$, so that
+\begin{equation}                         % inclusion of the constraints
+  \forall \bar{\theta} \in \left[-\frac{b}{2}, \frac{b}{2}\right], \quad
+  \sigma_l^2(\bar{\theta}) = A(|\bar{\theta}|) \leq \left(\frac{b}{2}\right)^2 - \bar{\theta}^2.
+  \label{eq:msis_incl}
+\end{equation}
+A second threshold $\sigma_m$ filters out estimations that are valid but too uncertain:
+\begin{equation}                         % maximum uncertainty
+  k\,\sigma_m = \frac{b}{2},
+  \label{eq:msis_sigmam}
+\end{equation}
+where the parameter $k$ controls the sensitivity of the filter, higher values being more
+restrictive; \citet{breux2020elevation} use $k = 3$ by default. The final threshold is
+\begin{equation}                         % final threshold
+  \sigma_T^2(\bar{\theta}) = \min\big(\sigma_l^2(\bar{\theta}),\ \sigma_m^2\big).
+  \label{eq:msis_sigmaT}
+\end{equation}
+If $\sigma_\theta \leq \sigma_T$, $\alpha$ and $\beta$ are computed with Eq.~\eqref{eq:def_beta_params};
+otherwise the estimate carries no reliable information and its distribution is the uniform one.
+Figure~\ref{fig:msis_thresholds} shows these thresholds for the Ping360 ($b = 25^\circ$) and $k = 3$:
+$\sigma_m \approx 4.2^\circ$, while $\sigma_l$ equals the standard deviation of the uniform
+distribution, $b/\sqrt{12} \approx 7.2^\circ$, at the centre of the beam, peaks at $7.5^\circ$ for
+$|\bar{\theta}| \approx 3^\circ$ and drops to zero at the edges. Hence $\sigma_T = \sigma_m$ for
+$|\bar{\theta}| \leq 11^\circ$, and $\sigma_T = \sigma_l$ in the last $1.5^\circ$ of each side of the beam.
+
+\begin{figure}[!htb]                     % thresholds computed for the Ping360
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=0.82\linewidth, height=5.4cm,
+        xmin=-12.5, xmax=12.5, ymin=0, ymax=9,
+        xtick={-12.5,-10,-5,0,5,10,12.5},
+        ytick={0,2,4,6,8},
+        xlabel={Mean elevation angle $\bar{\theta}$ (deg)},
+        ylabel={Standard deviation (deg)},
+        ymajorgrids, grid style={black!10},
+        axis line style={black!55}, tick style={black!55},
+        tick label style={font=\small}, label style={font=\small},
+        legend style={at={(0.5,1.03)}, anchor=south, legend columns=3, draw=none, font=\small,
+                      /tikz/every even column/.append style={column sep=1.2em}},
+        legend cell align=left,
+        domain=-12.5:12.5, samples=301,
+      ]
+      \addplot[draw=none, fill=vizBlue, fill opacity=0.18, area legend]
+        {min(sqrt(max((25 + 2*abs(x))^2*(25 - 2*abs(x))/(4*(75 + 2*abs(x))), 0)), 25/6)} \closedcycle;
+      \addlegendentry{kept: $\sigma_\theta \leq \sigma_T$}
+      \addplot[vizOrange, line width=1.2pt, dashed]
+        {sqrt(max((25 + 2*abs(x))^2*(25 - 2*abs(x))/(4*(75 + 2*abs(x))), 0))};
+      \addlegendentry{$\sigma_l$ (unimodality)}
+      \addplot[vizAqua, line width=1.2pt, densely dotted] {25/6};
+      \addlegendentry{$\sigma_m$ ($k = 3$)}
+      \node[font=\small, text=black!80] at (axis cs:0,2)      {beta distribution kept};
+      \node[font=\small, text=black!80] at (axis cs:0,5.7)    {uniform distribution};
+      \node[font=\small, text=black!80, anchor=west] at (axis cs:8.6,6.5)  {$\sigma_l$};
+      \node[font=\small, text=black!80, anchor=south] at (axis cs:6.2,4.25) {$\sigma_m$};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Thresholds on the standard deviation $\sigma_\theta$ of an elevation estimate as a function
+           of its mean $\bar{\theta}$, for the Ping360 ($b = 25^\circ$) and $k = 3$, computed from
+           Eqs.~\eqref{eq:msis_sigmal}--\eqref{eq:msis_sigmaT}. Estimates below
+           $\sigma_T = \min(\sigma_l, \sigma_m)$ (shaded) keep their beta distribution; the others are
+           replaced by the uniform distribution. Fig.~9 of \citet{breux2020elevation} shows the same
+           thresholds, as variances, for a $35^\circ$ beam.}
+  \label{fig:msis_thresholds}
+\end{figure}
+
+To display the result, \citet{breux2020elevation} colour the measured arc of each echo with the
+density of its beta distributions, through the mapping
+\begin{equation}                         % colour mapping of densities
+  m : \left\{
+  \begin{array}{rcl}
+    \mathbb{R}^+ & \to     & [0, 1] \\
+    x            & \mapsto & \dfrac{2}{\pi}\arctan(b x)
+  \end{array}\right.
+  \label{eq:msis_colour}
+\end{equation}
+whose central colour, $m = 1/2$, is obtained for $x = 1/b$, the density of the uniform distribution
+(Figure~\ref{fig:msis_uncertainty}). Algorithm~\ref{alg:msis_uncertainty} (\secref{sec:msis_pseudocode})
+summarizes the computation of the distribution of one estimate.
+
+\begin{figure}[!htb]                     % uncertainty of one echo
+  \centering
+  \figplaceholder[3cm]{One horizontal echo with two local maxima: (a) the measured arc coloured with
+  the mapping of Eq.~\eqref{eq:msis_colour}; (b) log-likelihood (top) and inverse Fisher information
+  (bottom) along $\theta$; (c) the two resulting beta distributions (own data, or adapted from Fig.~10
+  of \citealt{breux2020elevation})}
+  \caption{Uncertainty estimation for a horizontal echo hitting the wall at two elevations.}
+  \label{fig:msis_uncertainty}
+\end{figure}
+
+\hint{Add the settings used on the NavScoot~2 data: how the echoes are extracted from the Ping360
+intensity profiles, how the recording is cut into complete scans, the kernels and hyperparameters
+chosen, the number of samples $n_q$ and the threshold $k$.}
+
+% ==============================================================================
+\clearpage                               % the pseudocode starts on its own page
+\subsection{Pseudocode}                  % the three algorithms, always kept together here
+\label{sec:msis_pseudocode}              % \secref{sec:msis_pseudocode}
+
+Algorithms~\ref{alg:msis_merging} to \ref{alg:msis_uncertainty} give the complete pseudocode of the
+method: the scan merging (Algorithm~\ref{alg:msis_merging}), the maximum likelihood estimation of the
+elevation angles (Algorithm~\ref{alg:msis_mle}, \secref{sec:msis_mle}) and the estimation of their
+uncertainty (Algorithm~\ref{alg:msis_uncertainty}, \secref{sec:msis_uncertainty}). The line numbers
+quoted in the text refer to these algorithms.
+
+\begin{algorithm}[H]                     % Algorithm 1 of Breux and Lapierre (2020), written out
+  \caption{Scan merging \citep{breux2020elevation}.}
+  \label{alg:msis_merging}
+  \small                                 % slightly smaller so the three algorithms fit on two pages
+  \begin{algorithmic}[1]
+    \Require Horizontal measurements $\mathcal{M}^h = \{\mathbf{M}^h_k\}_{k=1}^{n_h}$ and vertical
+             measurements $\mathcal{M}^v = \{\mathbf{m}^v_k\}_{k=1}^{n_v}$ of one complete scan;
+             trajectory $\mathcal{H} = \{\boldsymbol{\eta}_i\}_{i=1}^{n_r}$; sonar poses
+             $\mathbf{p}_H$, $\mathbf{p}_V$; beam aperture $b$
+    \Ensure Distributions $p(\hat{\theta})$ of the elevation angles of every horizontal echo;
+            merged point cloud $\mathcal{P}$
+    \Statex $\triangleright$ \textit{Curvilinear abscissa}
+    \State $s_1 \gets 0$
+    \For{$i = 2, \dots, n_r$}
+      \State $\boldsymbol{\xi}_i \gets \log(\mathbf{T}_{i-1}^{-1}\mathbf{T}_i)$
+             \Comment{Relative motion}
+      \State $s_i \gets s_{i-1} + \sqrt{\boldsymbol{\xi}_i^T \mathbf{G}\, \boldsymbol{\xi}_i}$
+             \Comment{Eq.~\eqref{eq:msis_abscissa}}
+    \EndFor
+    \Statex $\triangleright$ \textit{Environment prior}
+    \State $\mathcal{P}^v \gets \{ g^v(\rho^v_k, 0, \psi^v_k, k) \mid \mathbf{m}^v_k \in \mathcal{M}^v \}$
+           \Comment{Vertical sonar points in $\{0\}$}
+    \State $f_p \gets \Call{FitEllipticCylinder}{\mathcal{P}^v}$
+           \Comment{Eqs.~\eqref{eq:msis_prior}--\eqref{eq:msis_lm}}
+    \Statex $\triangleright$ \textit{Surface estimation by Gaussian process}
+    \State $\mathbf{X} \gets [\,(s_{\sigma^v(k)}, \psi^v_k)\,]_{k=1}^{n_v}$, \
+           $\mathbf{y} \gets [\,\rho^v_k\,]_{k=1}^{n_v}$
+           \Comment{Training set}
+    \State $(\sigma_p, l_s, l_\psi, \sigma_n) \gets \arg\max \ln p(\mathbf{y} \mid \mathbf{X})$
+           \Comment{Eq.~\eqref{eq:msis_marglik}}
+    \State $f \gets \mathcal{GP}(f_p, K_{\mathrm{prod}})$ conditioned on $(\mathbf{X}, \mathbf{y})$
+           \Comment{Eqs.~\eqref{eq:def_gp_mean}, \eqref{eq:def_gp_var}, \eqref{eq:msis_kernel}}
+    \Statex $\triangleright$ \textit{Elevation angle estimation and merging}
+    \State $\mathcal{P} \gets \mathcal{P}^v$
+    \For{$k = 1, \dots, n_h$}
+      \For{each echo $(\rho^h_{kj}, \psi^h_k)$ of $\mathbf{M}^h_k$}
+        \State $\hat{\Theta}, \mathcal{Q} \gets \Call{ElevationAngleMLE}{f, \mathbf{s}, \rho^h_{kj}, \psi^h_k, k}$
+               \Comment{Algorithm~\ref{alg:msis_mle}}
+        \For{$\hat{\theta} \in \hat{\Theta}$}
+          \State $p(\hat{\theta}) \gets \Call{UncertaintyEstimate}{\mathcal{Q}, \hat{\theta}, b}$
+                 \Comment{Algorithm~\ref{alg:msis_uncertainty}}
+          \State $\mathcal{P} \gets \mathcal{P} \cup \{ (g^h(\rho^h_{kj}, \hat{\theta}, \psi^h_k, k),\ p(\hat{\theta})) \}$
+                 \Comment{3D point and its uncertainty}
+        \EndFor
+      \EndFor
+    \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]                     % Algorithm 2 of Breux and Lapierre (2020), written out
+  \caption{Elevation angle MLE \citep{breux2020elevation}.}
+  \label{alg:msis_mle}
+  \small                                 % slightly smaller so the three algorithms fit on two pages
+  \begin{algorithmic}[1]
+    \Require Trained surface GP $f$ with prior $f_p$; echo $(\rho^h, \psi^h)$ of the $k$-th
+             horizontal measurement; trajectory $\mathcal{H}$ and its curvilinear abscissa
+             $\mathbf{s}$; pose $\mathbf{p}_V = [\boldsymbol{\tau}_V^T\ \mathbf{q}_V^T]^T$ and rotation
+             axis $\mathbf{n}^v|_{\{S_V\}}$ of the vertical sonar; beam aperture $b$; number of
+             samples $n_q$
+    \Ensure Set $\hat{\Theta}$ of local maximum likelihood elevation angles; samples
+            $\mathcal{Q} = \{(\theta_q, \bar{\rho}_q, \sigma_q, \hat{\rho}_q)\}_{q=1}^{n_q}$ of the likelihood
+    \State $\hat{\Theta} \gets \emptyset$, \ $\Delta_\theta \gets b / n_q$, \ $\theta_0 \gets -b/2$
+    \For{$q = 1, \dots, n_q$}
+      \State $\theta_q \gets \theta_{q-1} + \Delta_\theta$
+      \State $\mathbf{x} \gets g^h(\rho^h, \theta_q, \psi^h, k)$
+             \Comment{Candidate point, Eq.~\eqref{eq:msis_candidate}}
+      \State $I \gets \emptyset$
+      \For{$i = 1, \dots, n_r - 1$}
+        \State $\mathbf{n}_i \gets \mathbf{R}(\mathbf{q}_i)\mathbf{R}(\mathbf{q}_V)\mathbf{n}^v|_{\{S_V\}}$, \
+               $\mathbf{n}_{i+1} \gets \mathbf{R}(\mathbf{q}_{i+1})\mathbf{R}(\mathbf{q}_V)\mathbf{n}^v|_{\{S_V\}}$
+               \Comment{Eq.~\eqref{eq:msis_axis}}
+        \State $\boldsymbol{\tau}^V_i \gets \boldsymbol{\tau}_i + \mathbf{R}(\mathbf{q}_i)\boldsymbol{\tau}_V$, \
+               $\boldsymbol{\tau}^V_{i+1} \gets \boldsymbol{\tau}_{i+1} + \mathbf{R}(\mathbf{q}_{i+1})\boldsymbol{\tau}_V$
+               \Comment{Sonar head}
+        \If{$\langle \mathbf{n}_i, \mathbf{x} - \boldsymbol{\tau}^V_i \rangle\,
+             \langle \mathbf{n}_{i+1}, \mathbf{x} - \boldsymbol{\tau}^V_{i+1} \rangle < 0$}
+             \Comment{Eq.~\eqref{eq:msis_segments}}
+          \State $I \gets I \cup \{i\}$
+        \EndIf
+      \EndFor
+      \State $l^{\max}_q \gets -\infty$
+             \Comment{Best log-likelihood of $\theta_q$}
+      \For{$i \in I$}
+        \State $\boldsymbol{\tau}(t) \gets \boldsymbol{\tau}_i + t\,(\boldsymbol{\tau}_{i+1} - \boldsymbol{\tau}_i)$
+               \Comment{Eq.~\eqref{eq:msis_interp_pos}}
+        \State $[\delta\psi\ \delta\chi\ \delta\phi]^T \gets \operatorname{Euler}\big(\mathbf{R}(\mathbf{q}_i)^T\mathbf{R}(\mathbf{q}_{i+1})\big)$
+               \Comment{Eq.~\eqref{eq:msis_euler}}
+        \State $\mathbf{R}(t) \gets \mathbf{R}(\mathbf{q}_i)\,\mathbf{R}(\delta\psi\, t, \delta\chi\, t, \delta\phi\, t)$
+               \Comment{Eqs.~\eqref{eq:msis_deltaR}--\eqref{eq:msis_Rt}}
+        \State $c_2, c_1, c_0 \gets$ coefficients with $\mathbf{x}$, $\boldsymbol{\tau}_i$, $\boldsymbol{\tau}_{i+1}$, $\delta\boldsymbol{\omega}$
+               \Comment{Eq.~\eqref{eq:msis_coeffs}}
+        \State $\hat{t} \gets$ root of $c_2 t^2 + c_1 t + c_0$ in $[0, 1]$
+               \Comment{Eqs.~\eqref{eq:msis_plane}, \eqref{eq:msis_quadratic}}
+        \State $\hat{\boldsymbol{\eta}} \gets \big[\boldsymbol{\tau}(\hat{t})^T\ \ \mathbf{q}(\hat{t})^T\big]^T$
+               with $\mathbf{R}(\mathbf{q}(\hat{t})) = \mathbf{R}(\hat{t})$
+               \Comment{Interpolated pose}
+        \State $[\hat{x}^v\ \ \hat{y}^v\ \ 0]^T \gets \mathbf{x} \ominus (\hat{\boldsymbol{\eta}} \oplus \mathbf{p}_V)$
+               \Comment{Eq.~\eqref{eq:msis_xhat}}
+        \State $\hat{s} \gets s_i + \lVert \log(\mathbf{T}_i^{-1}\hat{\mathbf{T}}) \rVert_G$
+               \Comment{Eq.~\eqref{eq:msis_shat}}
+        \State $\hat{\psi}^v \gets \operatorname{atan2}(\hat{y}^v, \hat{x}^v)$
+               \Comment{Eq.~\eqref{eq:msis_psihat}}
+        \State $\hat{\rho}^v \gets \lVert [\hat{x}^v\ \ \hat{y}^v\ \ 0]^T \rVert_2$
+               \Comment{Eq.~\eqref{eq:msis_rhohat}}
+        \State $(\bar{\rho}^{*}, \sigma^{*}) \gets$ prediction of $f$ at $(\hat{s}, \hat{\psi}^v)$, prior $f_p(\hat{\boldsymbol{\eta}}, \hat{\psi}^v)$
+               \Comment{Eq.~\eqref{eq:msis_gppred}}
+        \State $l \gets -\Big(\frac{(\bar{\rho}^{*} - \hat{\rho}^v)^2}{2\sigma^{*2}} + \ln\sigma^{*} + \frac{\ln 2\pi}{2}\Big)$
+               \Comment{Eq.~\eqref{eq:msis_loglik}}
+        \If{$l > l^{\max}_q$}
+          \State $l^{\max}_q \gets l$, \ $(\bar{\rho}_q, \sigma_q, \hat{\rho}_q) \gets (\bar{\rho}^{*}, \sigma^{*}, \hat{\rho}^v)$
+                 \Comment{Most likely crossing}
+        \EndIf
+      \EndFor
+      \If{$q \geq 3$ \textbf{and} $l^{\max}_{q-1} > l^{\max}_{q-2}$ \textbf{and} $l^{\max}_{q-1} > l^{\max}_q$}
+             \Comment{Eq.~\eqref{eq:msis_localmax}}
+        \State $\hat{\Theta} \gets \hat{\Theta} \cup \{\theta_{q-1}\}$
+      \EndIf
+    \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]                     % Algorithm 3 of Breux and Lapierre (2020), written out
+  \caption{Uncertainty estimate \citep{breux2020elevation}.}
+  \label{alg:msis_uncertainty}
+  \small                                 % slightly smaller so the three algorithms fit on two pages
+  \begin{algorithmic}[1]
+    \Require Samples $\mathcal{Q} = \{(\theta_q, \bar{\rho}_q, \sigma_q, \hat{\rho}_q)\}$ of the
+             likelihood $p(\rho^v \mid \theta)$ (Algorithm~\ref{alg:msis_mle}); local maximum
+             $\bar{\theta} = \theta_{\bar{q}} \in \hat{\Theta}$; sampling step $\Delta_\theta$; beam
+             aperture $b$; filter parameter $k$
+    \Ensure Distribution $p(\hat{\theta})$ of the elevation angle
+    \State $\bar{\rho}' \gets (\bar{\rho}_{\bar{q}+1} - \bar{\rho}_{\bar{q}-1}) / (2\Delta_\theta)$
+           \Comment{Central finite differences}
+    \State $\sigma' \gets (\sigma_{\bar{q}+1} - \sigma_{\bar{q}-1}) / (2\Delta_\theta)$
+    \State $\mathcal{I}(\bar{\theta}) \gets \big(2\sigma'^2 + \bar{\rho}'^2\big) / \sigma_{\bar{q}}^2$
+           \Comment{Fisher information, Eq.~\eqref{eq:msis_A5}}
+    \State $\sigma_\theta^2 \gets 1 / \mathcal{I}(\bar{\theta})$
+           \Comment{Eq.~\eqref{eq:msis_fisher}}
+    \State $\sigma_l^2 \gets (b + 2|\bar{\theta}|)^2 (b - 2|\bar{\theta}|) \,/\, \big(4(3b + 2|\bar{\theta}|)\big)$
+           \Comment{Unimodality, Eq.~\eqref{eq:msis_sigmal}}
+    \State $\sigma_m \gets b / (2k)$
+           \Comment{Maximum uncertainty, Eq.~\eqref{eq:msis_sigmam}}
+    \State $\sigma_T^2 \gets \min(\sigma_l^2, \sigma_m^2)$
+           \Comment{Eq.~\eqref{eq:msis_sigmaT}}
+    \State $\alpha \gets 1$, \ $\beta \gets 1$
+           \Comment{Uniform distribution by default}
+    \If{$\sigma_\theta^2 \leq \sigma_T^2$}
+      \State $\alpha \gets (b + 2\bar{\theta})\,\big(b^2 - 4(\bar{\theta}^2 + \sigma_\theta^2)\big) / (8b\,\sigma_\theta^2)$
+             \Comment{Eq.~\eqref{eq:def_beta_params}}
+      \State $\beta \gets (b - 2\bar{\theta})\,\big(b^2 - 4(\bar{\theta}^2 + \sigma_\theta^2)\big) / (8b\,\sigma_\theta^2)$
+             \Comment{Eq.~\eqref{eq:def_beta_params}}
+    \EndIf
+    \State $p(\hat{\theta}) \gets \operatorname{Beta}(\alpha, \beta, -b/2, b/2)$
+           \Comment{Eqs.~\eqref{eq:def_beta}, \eqref{eq:msis_beta}}
+  \end{algorithmic}
+\end{algorithm}
+
+\clearpage                               % the Results start on a new page
