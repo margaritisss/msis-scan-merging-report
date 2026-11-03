@@ -16,18 +16,20 @@
 \contentsline {subsection}{\numberline {4.2}Algorithm description}{10}{subsection.4.2}%
 \contentsline {subsubsection}{\numberline {4.2.1}Environment prior}{10}{subsubsection.4.2.1}%
 \contentsline {subsubsection}{\numberline {4.2.2}Gaussian process regression and kernel choices}{11}{subsubsection.4.2.2}%
-\contentsline {subsubsection}{\numberline {4.2.3}Maximum likelihood estimation of the elevation angle}{12}{subsubsection.4.2.3}%
-\contentsline {paragraph}{1. Selection of the trajectory segments.}{12}{paragraph*.1}%
-\contentsline {paragraph}{2. Interpolation of the pose.}{13}{paragraph*.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}Maximum likelihood estimation of the elevation angle}{13}{subsubsection.4.2.3}%
+\contentsline {paragraph}{1. Selection of the trajectory segments.}{13}{paragraph*.1}%
+\contentsline {paragraph}{2. Interpolation of the pose.}{14}{paragraph*.2}%
 \contentsline {paragraph}{3. Virtual vertical measurement.}{14}{paragraph*.3}%
 \contentsline {paragraph}{4. Log-likelihood.}{15}{paragraph*.4}%
-\contentsline {paragraph}{5. Local maxima.}{15}{paragraph*.5}%
-\contentsline {subsubsection}{\numberline {4.2.4}Estimation uncertainty}{15}{subsubsection.4.2.4}%
+\contentsline {paragraph}{5. Local maxima.}{16}{paragraph*.5}%
+\contentsline {subsubsection}{\numberline {4.2.4}Estimation uncertainty}{16}{subsubsection.4.2.4}%
 \contentsline {paragraph}{Derivation of the Fisher information.}{16}{paragraph*.6}%
 \contentsline {paragraph}{Validity thresholds.}{16}{paragraph*.7}%
-\contentsline {subsection}{\numberline {4.3}Pseudocode}{18}{subsection.4.3}%
-\contentsline {section}{\numberline {5}Results}{20}{section.5}%
-\contentsline {section}{\numberline {6}Conclusions and Recommendations}{20}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Conclusions}{20}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Recommendations}{20}{subsection.6.2}%
-\contentsline {section}{List of References}{21}{subsection.6.2}%
+\contentsline {subsection}{\numberline {4.3}Pseudocode}{19}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Results}{21}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Merged point cloud}{21}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Close-up comparison}{21}{subsection.5.2}%
+\contentsline {section}{\numberline {6}Conclusions and Recommendations}{22}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Conclusions}{22}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Recommendations}{22}{subsection.6.2}%
+\contentsline {section}{List of References}{23}{subsection.6.2}%

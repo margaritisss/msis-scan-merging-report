@@ -276,6 +276,48 @@ accumulated during the scan makes the inputs uncertain, and taking this input un
 account could significantly improve the estimation; as in \citet{breux2020elevation}, the inputs are
 assumed noise-free here.
 
+Figure~\ref{fig:msis_gp_surface} shows the surface estimated in this way for one scan of the
+NavScoot~2, seen from two different points of view. It is obtained by evaluating the Gaussian process
+on a regular grid of $40 \times 80$ inputs $(s, \psi^v)$ covering the scan: each point of the mesh is
+placed at the predicted mean range $\bar{\rho}^{*}$ along the vertical sonar ray of the pose at
+abscissa $s$ and rotation angle $\psi^v$, i.e.\ at the cylinder prior corrected by the learned
+residual. The colour is the predicted standard deviation $\sigma^{*}$ of that range, in metres: the
+wall is expected at $\bar{\rho}^{*} \pm \sigma^{*}$ along each ray with a probability of about 68\%,
+and within $\pm 3\sigma^{*}$ with a probability of 99.7\%. This uncertainty depends only on how close
+an input is to the training inputs, measured by the kernel along the trajectory (length scale $l_s$)
+and on the angle (length scale $l_\psi$). Near the vertical sonar measurements it falls to its lowest
+values (blue, about 0.1~m), close to the noise level $\sigma_n$ of the measurements. Between and away
+from them it rises towards $\sqrt{\sigma_p^2 + \sigma_n^2}$ (red, up to about 0.75~m), where the
+estimate relies only on the prior and the correlation of the kernel. The stripes follow the rotation
+of the vertical sonar: each pass of the beam over the wall leaves a band of low uncertainty. This
+standard deviation is the one used to weigh the candidate elevation angles
+(Eq.~\eqref{eq:msis_loglik}). Where it is small, the likelihood is sharp and the elevation is well
+determined; where it is large, the likelihood is flat and the estimate tends towards the uniform
+distribution (\secref{sec:msis_uncertainty}).
+
+\begin{figure}[!htb]                     % estimated GP surface of one scan, two viewpoints
+  \centering
+  \begin{minipage}[b]{0.49\linewidth}    % (a) first point of view
+    \centering
+    \includegraphics[width=\linewidth]{figures/gp_1.png}\\[0.2em]
+    {\small (a)}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.49\linewidth}    % (b) second point of view
+    \centering
+    \includegraphics[width=\linewidth]{figures/gp_2.png}\\[0.2em]
+    {\small (b)}
+  \end{minipage}
+  \caption{Surface estimated by the Gaussian process for one scan, shown from two different points of
+           view: (a) and (b) are the same surface seen from two viewpoints. The mesh is the predicted
+           mean range $\bar{\rho}^{*}(s, \psi^v)$, placed in 3D along the vertical sonar rays, on a
+           $40 \times 80$ grid of $(s, \psi^v)$ covering the scan. The colour is the predicted standard
+           deviation $\sigma^{*}$ of the range, in metres: blue where the wall is constrained by nearby
+           vertical sonar measurements (down to about 0.1~m, the measurement noise), red between and
+           away from them (up to about 0.75~m, the prior uncertainty). Red markers: the vertical sonar
+           points of the scan, used to train the process.}
+  \label{fig:msis_gp_surface}
+\end{figure}
+
 % ------------------------------------------------------------------------------
 \subsubsection{Maximum likelihood estimation of the elevation angle}  % search inside the beam
 \label{sec:msis_mle}                                                  % \secref{sec:msis_mle}
