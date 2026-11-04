@@ -76,6 +76,25 @@ $\Theta$ and a horizontal aperture $\Psi$. On the NavScoot~2, the vertical sonar
 we take $\Psi_H = \Psi_V = \Theta_V = 0$. Only the vertical aperture of the horizontal sonar
 is kept: $\Theta_H = [-b/2,\, b/2]$, with $b = 25^\circ$ for the Ping360.
 
+Figure~\ref{fig:def_scanplanes} shows these quantities for the two sonars, on the scene of
+Figure~\ref{fig:bg_scanplanes}.
+
+\begin{figure}[!htbp]                    % geometry of the two scanning planes, with notation
+  \centering
+  \includegraphics[width=0.9\linewidth, height=9cm, keepaspectratio]{figures/scanning_planes.jpeg}
+  \caption{Geometry of the two MSIS scanning the conduit surface $\Omega$ (red mesh); the yellow
+           dashed line is the trajectory of the vehicle. \emph{Horizontal sonar} (blue, frame
+           $\{S_H\}$): its head rotates about the vertical axis ($\omega^H$) and points in the
+           direction $\psi^H$; its beam is narrow horizontally ($\Psi^H$) but wide vertically
+           ($\Theta^H = 25^\circ$), so an echo at range $r^H$ can come from any elevation $\theta^H$
+           inside $\Theta^H$. \emph{Vertical sonar} (green, frame $\{S_V\}$): its head rotates about
+           the longitudinal axis of the vehicle ($\omega^V$) and sweeps a cross-section of the
+           conduit; its beam is narrow in both directions ($\Psi^V, \Theta^V \approx 0$), so
+           $\theta^V \approx 0$ and each echo at range $r^V$ gives a single point. The ranges $r^H$,
+           $r^V$ are written $\rho^h$, $\rho^v$ in the text. Adapted from \citet{breux2020elevation}.}
+  \label{fig:def_scanplanes}
+\end{figure}
+
 \begin{itemize}                          % the two kinds of measurement
   \item \textbf{Vertical sonar.} A ping gives a single point,
         $\mathbf{m}^v_k = [\rho^v_k\ \ 0\ \ \psi^v_k]^T$ in $\{S_V\}$: its elevation is known and
@@ -127,7 +146,7 @@ mean function $f_p$ and a covariance function, or \emph{kernel}, $K(\mathbf{x}, 
 measures how similar the outputs at two inputs are expected to be. GP regression uses it as a
 non-parametric model of an unknown function. Here it models the conduit surface seen by the
 vertical sonar: the inputs are the curvilinear abscissa $s$ of the pose along the trajectory
-(\secref{sec:msis_merging}) and the rotation angle $\psi^v$, and the output is the range,
+and the rotation angle $\psi^v$, and the output is the range,
 \begin{equation}                         % observation model
   \rho^v = f(s, \psi^v) + e, \qquad e \sim \mathcal{N}(0, \sigma_n^2).
   \label{eq:def_gp_model}

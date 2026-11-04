@@ -2,7 +2,7 @@
 \label{sec:msis_merging}                 % \secref{sec:msis_merging}
 
 The horizontal sonar of the NavScoot~2 measures the range of every echo but not its elevation
-inside its $25^\circ$ beam (\secref{sec:def_measurements}). A wide beam is nevertheless valuable:
+inside its $25^\circ$ beam. A wide beam is nevertheless valuable:
 it covers a large part of the conduit at each rotation, which increases the surface seen by two
 successive $360^\circ$ scans and therefore the chance of recognizing a region already mapped. The
 price is a high uncertainty on the 3D position of each echo \citep{breux2020elevation}. This
@@ -15,8 +15,7 @@ low-resolution, wide-beam horizontal sonar. In \citet{margaritis2025internship},
 was only used to add points to the reconstructed environment; here it is also used to estimate the
 elevation angles of the horizontal sonar.
 
-The method only considers the trajectory during the acquisition of one complete scan
-(\secref{sec:def_measurements}): the measurements $\mathcal{M}^h$ of one full rotation of the
+The method only considers the trajectory during the acquisition of one complete scan, the measurements $\mathcal{M}^h$ of one full rotation of the
 horizontal sonar, the measurements $\mathcal{M}^v$ of the vertical sonar during the same interval,
 and the dead-reckoning poses $\mathcal{H} = \{\boldsymbol{\eta}_i\}$, $i \in \{1,\dots,n_r\}$, of
 that interval. The estimation of the full trajectory, for instance in a pose-graph SLAM framework,
@@ -116,12 +115,11 @@ the beams of the horizontal sonar.
 The algorithm is summarized in Algorithm~\ref{alg:msis_merging} (\secref{sec:msis_pseudocode}). First, the curvilinear abscissa of
 every pose of the trajectory is computed with Eq.~\eqref{eq:msis_abscissa} (lines 1--5). The
 vertical sonar measurements are then placed in the world frame and an elliptic cylinder is fitted to
-them as the surface prior $f_p$ (lines 6--7, \secref{sec:msis_prior}). The Gaussian process
+them as the surface prior $f_p$ (lines 6--7). The Gaussian process
 modelling the surface is trained on the vertical sonar measurements and their curvilinear abscissae
-(lines 8--10, \secref{sec:msis_gp}). Then, for every echo of every horizontal measurement, the most
-likely elevation angles are estimated (line 14, Algorithm~\ref{alg:msis_mle},
-\secref{sec:msis_mle}) and their uncertainties are computed (line 16,
-Algorithm~\ref{alg:msis_uncertainty}, \secref{sec:msis_uncertainty}). Finally, each estimated angle
+(lines 8--10). Then, for every echo of every horizontal measurement, the most
+likely elevation angles are estimated (line 14, Algorithm~\ref{alg:msis_mle}) and their uncertainties are computed (line 16,
+Algorithm~\ref{alg:msis_uncertainty}). Finally, each estimated angle
 turns the echo into a 3D point with a known uncertainty, which is added to the vertical sonar points
 of the scan (line 17). This last step is specific to this project, whose aim is a single point cloud
 combining both sonars; \citet{breux2020elevation} stop at the distributions $p(\hat{\theta})$.
@@ -188,19 +186,21 @@ which, like any such optimization, needs a good initial shape. It is done in thr
 
 \begin{figure}[!htb]                     % elliptic cylinder prior
   \centering
-  \begin{minipage}[b]{0.32\linewidth}    % (a) vertical sonar points
+  % minipage widths are proportional to the width/height ratio of each image (1.73, 1.56, 1.26),
+  % so that with width=\linewidth the three images get exactly the same height
+  \begin{minipage}[b]{0.364\linewidth}   % (a) vertical sonar points
     \centering
-    \includegraphics[width=\linewidth, height=4.5cm, keepaspectratio]{figures/points.png}\\[0.2em]
+    \includegraphics[width=\linewidth]{figures/points.png}\\[0.2em]
     {\small (a)}
   \end{minipage}\hfill
-  \begin{minipage}[b]{0.32\linewidth}    % (b) initial cylinder from the RPCA
+  \begin{minipage}[b]{0.329\linewidth}   % (b) initial cylinder from the RPCA
     \centering
-    \includegraphics[width=\linewidth, height=4.5cm, keepaspectratio]{figures/initial_cyliner.png}\\[0.2em]
+    \includegraphics[width=\linewidth]{figures/initial_cyliner.png}\\[0.2em]
     {\small (b)}
   \end{minipage}\hfill
-  \begin{minipage}[b]{0.32\linewidth}    % (c) cylinder after LM optimization
+  \begin{minipage}[b]{0.267\linewidth}   % (c) cylinder after LM optimization
     \centering
-    \includegraphics[width=\linewidth, height=4.5cm, keepaspectratio]{figures/optimised.png}\\[0.2em]
+    \includegraphics[width=\linewidth]{figures/optimised.png}\\[0.2em]
     {\small (c)}
   \end{minipage}
   \caption{Elliptic cylinder prior fitted to the vertical sonar points of one scan: (a) the vertical

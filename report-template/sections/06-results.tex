@@ -1,37 +1,24 @@
 \section{Results}                        % what the method produced
 \label{sec:results}                      % \secref{sec:results}
 
-This section presents the result of the scan merging method of \secref{sec:msis_merging} applied
-to the data recorded with the NavScoot~2 in the Fontaine de N\^imes. For every complete scan, the
-vertical sonar measurements were used to estimate the conduit wall with a Gaussian process, the
-elevation angle of each echo of the horizontal sonar was estimated with its uncertainty, and the
-resulting 3D points were added to the vertical sonar points (Algorithm~\ref{alg:msis_merging}). The
-results are shown at two scales. \secref{sec:res_merged} gives an overall view of the conduit and
-compares three point clouds: the initial point cloud built from the vertical sonar alone, as in
-\citet{margaritis2025internship}; the new points recovered from the horizontal sonar; and the merged
-point cloud that combines both. \secref{sec:res_zoom} then zooms on one region of the conduit and
-shows it with and without the points of the horizontal sonar, to make the local effect of the
-merging visible.
+The scan merging method of \secref{sec:msis_merging} was applied to every complete scan of the dive
+of the NavScoot~2 in the Fontaine de N\^imes. Figure~\ref{fig:res_merged} shows the whole conduit:
+(a) the initial point cloud built from the vertical sonar alone, as in
+\citet{margaritis2025internship}, where each rotation of the sonar gives one cross-section of the
+conduit; (b) the points recovered from the horizontal sonar, each echo placed in 3D at its estimated
+elevation angle; and (c) the merged point cloud. In total, almost 4.5~million points are recovered
+from the horizontal sonar. They follow the same outline of the conduit as the vertical points, but
+they form separate patches rather than a continuous line.
 
-% ------------------------------------------------------------------------------
-\subsection{Merged point cloud}          % the three clouds of one dive
-\label{sec:res_merged}                   % \secref{sec:res_merged}
-
-Figure~\ref{fig:res_merged} shows the three point clouds from the same viewpoint, so that they can be
-compared directly. The initial point cloud (a) contains only the vertical sonar measurements: each
-rotation of the vertical sonar gives one cross-section of the conduit, so the wall appears as a
-sequence of slices along the trajectory. The points of the horizontal sonar (b) are each echo placed
-in 3D at its estimated elevation angle; they sample the walls along the direction of travel, between
-those slices. The merged point cloud (c) is the union of both sets.
-\hint{Comment on what the horizontal sonar adds: number of points, part of the wall covered,
-agreement with the vertical sonar points where both overlap.}                  % \secref{sec:res_merged}
-
-Figure~\ref{fig:res_merged} shows the result of the scan merging on the NavScoot~2 data: the
-initial point cloud obtained from the vertical sonar only (a), the points recovered from the
-horizontal sonar with their estimated elevation angles (b), and the merged point cloud combining
-both (c).
-\hint{Comment on what the horizontal sonar adds: number of points, part of the wall covered,
-agreement with the vertical sonar points where both overlap.}
+Figure~\ref{fig:res_zoom} zooms on one region of the conduit, without (a) and with (b) the points of
+the horizontal sonar. Without them, the wall is only sampled along the regularly spaced cross-sections
+of the vertical sonar, with empty space in between. The horizontal sonar adds dense patches of points
+in these gaps, elongated along the direction of the conduit, so that parts of the wall that the
+vertical sonar never measured are now sampled. The coverage is, however, uneven: the new points are
+concentrated in a few patches, much denser than the vertical sonar points, while other gaps remain
+empty. Inside the patches, the points are arranged in streaks, and one patch has a fan shape that
+spreads out from a single region; such structures suggest that part of these points come from
+several echoes of the same ping or from noise rather than from the wall itself.
 
 \begin{figure}[!htb]                     % initial, horizontal and merged clouds
   \centering
@@ -56,21 +43,6 @@ agreement with the vertical sonar points where both overlap.}
   \label{fig:res_merged}
 \end{figure}
 
-% ------------------------------------------------------------------------------
-\subsection{Close-up comparison}         % local effect of the horizontal sonar
-\label{sec:res_zoom}                     % \secref{sec:res_zoom}
-
-At the scale of the whole conduit, the difference between the clouds is hard to judge, so
-Figure~\ref{fig:res_zoom} shows a close-up of one region from the same viewpoint, without (a) and
-with (b) the points of the horizontal sonar. In (a), the gaps between successive cross-sections of
-the vertical sonar are visible; (b) shows how the horizontal points fill these gaps.
-\hint{Comment on the local effect: how well the gaps are filled, and any region where the
-horizontal points add noise.}                   % \secref{sec:res_zoom}
-
-Figure~\ref{fig:res_zoom} compares the same region of the conduit without (a) and with (b) the
-points of the horizontal sonar.
-\hint{Comment on the local effect: gaps between the vertical cross-sections filled by the
-horizontal points, and any region where they add noise.}
 
 \begin{figure}[!htb]                     % zoom without / with the horizontal sonar
   \centering

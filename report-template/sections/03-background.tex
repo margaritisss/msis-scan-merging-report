@@ -53,7 +53,7 @@ moving.
   \label{fig:bg_navscoot}
 \end{figure}
 % ------------------------------------------------------------------------------
-\subsection{From raw data to a point cloud}  % the existing pipeline
+\subsection{Computed point cloud}  % the existing pipeline
 \label{sec:bg_pipeline}                      % \secref{sec:bg_pipeline}
 
 In the previous work \citep{margaritis2025internship}, the trajectory of the NavScoot~2 was
@@ -90,9 +90,14 @@ process the horizontal sonar data and merge them with the vertical sonar data in
 point cloud as proposed in the work of \citet{breux2020elevation} with the only difference that in this work we will apply the the method in real data, where \citet{breux2020elevation} 
 applied it in simulated data and in our best of our knowledge this is the first time it is applied to real data.
 
-\begin{figure}[!htbp]                    % geometry of the two scanning planes
+\begin{figure}[!htbp]                    % the two sonars at a glance (no notation)
   \centering
-  \includegraphics[width=0.9\linewidth, height=9cm, keepaspectratio]{figures/scanning_planes.jpeg}
-  \caption{Scanning planes of the two MSIS on the NavScoot~2.}
+  \includegraphics[width=0.9\linewidth, height=9cm, keepaspectratio]{figures/scanning_planes_without_.png}
+  \caption{The two sonars of the vehicle in a karst conduit. The horizontal sonar (blue) turns about
+           the vertical axis and sweeps a horizontal plane all around the vehicle; its beam is narrow
+           horizontally but $25^\circ$ high, so it covers a wide band of the wall at once (vertical
+           blue arrow). The vertical sonar (green) turns about the longitudinal axis of the vehicle and
+           sweeps a cross-section of the conduit with a narrow beam. The curved arrows show the rotation
+           of each sonar head.}
   \label{fig:bg_scanplanes}
 \end{figure}
